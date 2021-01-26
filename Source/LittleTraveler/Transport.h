@@ -7,6 +7,8 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/TimelineComponent.h"
+#include "Track.h"
 #include "Transport.generated.h"
 
 UCLASS()
@@ -28,8 +30,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class USphereComponent* Collider;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		class UFloatingPawnMovement* Movement;
+	bool isActive = false;
+	FTimeline MoveTimeline;
+	float LerpAlpha = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+		UCurveFloat* MoveCurve;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+		ATrack* TrackRef;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		// class UFloatingPawnMovement* Movement;
 
 	float original_height = 0;
 
@@ -37,14 +46,23 @@ protected:
 		void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 		void OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	UFUNCTION()
+		void LerpToMove(float value);
+	UFUNCTION()
+		void MoveFinish();
 
 public:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-		float Speed = 1.0f;
+		float Duration = 1.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+		float StartOffset = 0.5f;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	inline void ToggleActive() { isActive = (!isActive); }
+
 };
