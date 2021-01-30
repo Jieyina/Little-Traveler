@@ -207,14 +207,14 @@ void ATP_ThirdPersonCharacter::OnJumpReleased()
 
 void ATP_ThirdPersonCharacter::TurnAtRate(float Rate)
 {
-	if(!isOnNode && canMove)
+	if(canMove)
 	// calculate delta for this frame from the rate information
 		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void ATP_ThirdPersonCharacter::LookUpAtRate(float Rate)
 {
-	if(!isOnNode && canMove)
+	if(canMove)
 	// calculate delta for this frame from the rate information
 		AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
