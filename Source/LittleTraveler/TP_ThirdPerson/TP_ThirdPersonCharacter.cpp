@@ -10,10 +10,16 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/TimelineComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "TimerManager.h"
+#include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "GameFramework/PlayerStart.h"
+//#include "UObject/ConstructorHelpers.h"
+#include "DrawDebugHelpers.h"
 
 #include "../Line.h"
 #include "../CPP_Pushable.h"
@@ -24,11 +30,7 @@
 #include "../Collectable.h"
 #include "../GameSave.h"
 #include "../JumpableNode.h"
-#include "Engine/Engine.h"
-#include "Engine/World.h"
-#include "GameFramework/PlayerStart.h"
-//#include "UObject/ConstructorHelpers.h"
-#include "DrawDebugHelpers.h"
+#include "../Hook.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -72,6 +74,11 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	GlideEquip->SetCollisionProfileName("NoCollision");
 	GlideEquip->SetHiddenInGame(true);
 
+	MoveToPushTimeline = CreateDefaultSubobject<UTimelineComponent>("PushTimeline");
+	MoveToClimbTimeline = CreateDefaultSubobject<UTimelineComponent>("ClimbTimeline");
+	JumpEdgeTimeline = CreateDefaultSubobject<UTimelineComponent>("JumpEdgeTimeline");
+	RockClimbTimeline = CreateDefaultSubobject<UTimelineComponent>("RockClimbTimeline");
+
 	traceDistance = 30.0f;
 
 	jumping = false;
@@ -108,6 +115,10 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	rockClimbEnd = false;
 	rockClimbPos = FVector(0, 0, 0);
 	rockClimbRot = FRotator(0, 0, 0);
+
+	swing = false;
+	hookDis = 100.0f;
+	launchRate = 1.5f;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -130,6 +141,7 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAxis("TurnRate", this, &ATP_ThirdPersonCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ATP_ThirdPersonCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAxis("AdjustRope", this, &ATP_ThirdPersonCharacter::AdjustRope);
 
 	// handle touch devices
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ATP_ThirdPersonCharacter::TouchStarted);
@@ -141,6 +153,7 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATP_ThirdPersonCharacter::Interact);
 	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ATP_ThirdPersonCharacter::Glide);
 	PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseFlourBomb);
+	PlayerInputComponent->BindAction("Hook", IE_Pressed, this, &ATP_ThirdPersonCharacter::Hook);
 }
 
 
@@ -176,7 +189,7 @@ void ATP_ThirdPersonCharacter::OnJumpPressed()
 				rockClimbEnd = true;
 			rockClimbing = true;
 			GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
-			RockClimbTimeline.PlayFromStart();
+			RockClimbTimeline->PlayFromStart();
 		}
 		return;
 	}
@@ -253,6 +266,16 @@ void ATP_ThirdPersonCharacter::MoveForward(float Value)
 				Climb(true, Value);
 			return;
 		}
+		if (swing && Value != 0.0f)
+		{
+			FVector hookProj = UKismetMathLibrary::ProjectVectorOnToPlane(HookObj->GetEnd()->GetForwardVector(), FVector(0, 0, 1));
+			FVector camFw = UKismetMathLibrary::GetForwardVector(FRotator(0, Controller->GetControlRotation().Yaw, 0)) * Value;
+			float angle = UKismetMathLibrary::SignOfFloat(hookProj.X * camFw.Y - camFw.X * hookProj.Y) * 
+				UKismetMathLibrary::DegAcos(UKismetMathLibrary::Dot_VectorVector(hookProj, camFw));
+			GetCapsuleComponent()->SetRelativeRotation(FRotator(0, angle, 0));
+			HookObj->Swing(camFw);
+			return;
+		}
 		if (Value != 0.0f)
 		{
 			const FRotator Rotation = Controller->GetControlRotation();
@@ -286,6 +309,16 @@ void ATP_ThirdPersonCharacter::MoveRight(float Value)
 				Climb(false, Value);
 			return;
 		}
+		if (swing && Value != 0.0f)
+		{
+			FVector hookProj = UKismetMathLibrary::ProjectVectorOnToPlane(HookObj->GetEnd()->GetForwardVector(), FVector(0, 0, 1));
+			FVector camR = UKismetMathLibrary::GetRightVector(FRotator(0, Controller->GetControlRotation().Yaw, 0)) * Value;
+			float angle = UKismetMathLibrary::SignOfFloat(hookProj.X * camR.Y - camR.X * hookProj.Y) *
+				UKismetMathLibrary::DegAcos(UKismetMathLibrary::Dot_VectorVector(hookProj, camR));
+			GetCapsuleComponent()->SetRelativeRotation(FRotator(0, angle, 0));
+			HookObj->Swing(camR);
+			return;
+		}
 		if (Value != 0.0f)
 		{
 			const FRotator Rotation = Controller->GetControlRotation();
@@ -306,10 +339,17 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 	{
 		Line = Cast<ALine>(Actors[0]);
 	}
+	Actors.Empty();
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), Actors);
 	if (Actors.Num() > 0)
 	{
 		PlayerStart = Cast<APlayerStart>(Actors[0]);
+	}
+	Actors.Empty();
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHook::StaticClass(), Actors);
+	if (Actors.Num() > 0)
+	{
+		HookObj = Cast<AHook>(Actors[0]);
 	}
 
 	if (MoveCurve)
@@ -318,14 +358,14 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 		FOnTimelineEventStatic MoveToPushFinishCallback;
 		MoveToPushCallback.BindUFunction(this, FName("LerpToPush"));
 		MoveToPushFinishCallback.BindUFunction(this, FName("OnLerpToPushFinish"));
-		MoveToPushTimeline.AddInterpFloat(MoveCurve, MoveToPushCallback);
-		MoveToPushTimeline.SetTimelineFinishedFunc(MoveToPushFinishCallback);
+		MoveToPushTimeline->AddInterpFloat(MoveCurve, MoveToPushCallback);
+		MoveToPushTimeline->SetTimelineFinishedFunc(MoveToPushFinishCallback);
 		FOnTimelineFloat MoveToClimbCallback;
 		FOnTimelineEventStatic MoveToClimbFinishCallback;
 		MoveToClimbCallback.BindUFunction(this, FName("LerpToClimb"));
 		MoveToClimbFinishCallback.BindUFunction(this, FName("OnLerpToClimbFinish"));
-		MoveToClimbTimeline.AddInterpFloat(MoveCurve, MoveToClimbCallback);
-		MoveToClimbTimeline.SetTimelineFinishedFunc(MoveToClimbFinishCallback);
+		MoveToClimbTimeline->AddInterpFloat(MoveCurve, MoveToClimbCallback);
+		MoveToClimbTimeline->SetTimelineFinishedFunc(MoveToClimbFinishCallback);
 	}
 
 	if (JumpEdgeCurve)
@@ -334,8 +374,8 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 		FOnTimelineEventStatic JumpEdgeFinishCallback;
 		JumpEdgeCallback.BindUFunction(this, FName("LerpToJump"));
 		JumpEdgeFinishCallback.BindUFunction(this, FName("OnLerpToJumpFinish"));
-		JumpEdgeTimeline.AddInterpFloat(JumpEdgeCurve, JumpEdgeCallback);
-		JumpEdgeTimeline.SetTimelineFinishedFunc(JumpEdgeFinishCallback);
+		JumpEdgeTimeline->AddInterpFloat(JumpEdgeCurve, JumpEdgeCallback);
+		JumpEdgeTimeline->SetTimelineFinishedFunc(JumpEdgeFinishCallback);
 	}
 
 	if (ClimbRockCurve)
@@ -344,8 +384,8 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 		FOnTimelineEventStatic ClimbRockFinishCallback;
 		ClimbRockCallback.BindUFunction(this, FName("ClimbJump"));
 		ClimbRockFinishCallback.BindUFunction(this, FName("OnClimbJumpFinish"));
-		RockClimbTimeline.AddInterpFloat(ClimbRockCurve, ClimbRockCallback);
-		RockClimbTimeline.SetTimelineFinishedFunc(ClimbRockFinishCallback);
+		RockClimbTimeline->AddInterpFloat(ClimbRockCurve, ClimbRockCallback);
+		RockClimbTimeline->SetTimelineFinishedFunc(ClimbRockFinishCallback);
 	}
 
 	initAirContol = GetCharacterMovement()->AirControl;
@@ -357,10 +397,10 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	MoveToPushTimeline.TickTimeline(DeltaTime);
-	MoveToClimbTimeline.TickTimeline(DeltaTime);
-	JumpEdgeTimeline.TickTimeline(DeltaTime);
-	RockClimbTimeline.TickTimeline(DeltaTime);
+	//MoveToPushTimeline.TickTimeline(DeltaTime);
+	//MoveToClimbTimeline.TickTimeline(DeltaTime);
+	//JumpEdgeTimeline.TickTimeline(DeltaTime);
+	//RockClimbTimeline.TickTimeline(DeltaTime);
 	if (isTurningToForward) {
 		GetCameraBoom()->bUsePawnControlRotation = false;
 		canMove = false;
@@ -612,7 +652,7 @@ void ATP_ThirdPersonCharacter::StartPush(float friction, FVector direction, USce
 	PushStart = start;
 	prevPos = this->GetActorLocation();
 	prevRot = this->GetActorRotation();
-	MoveToPushTimeline.PlayFromStart();
+	MoveToPushTimeline->PlayFromStart();
 }
 
 void ATP_ThirdPersonCharacter::StopPush(bool changeCollision)
@@ -654,7 +694,7 @@ void ATP_ThirdPersonCharacter::Climb(bool vertical, float axisValue)
 				this->SetActorRotation(FRotator(0, climbRot.Yaw, 0));
 				prevPos = this->GetActorLocation();
 				jumpDir = JumpDir::Up;
-				JumpEdgeTimeline.PlayFromStart();
+				JumpEdgeTimeline->PlayFromStart();
 			}
 		}
 	}
@@ -707,7 +747,7 @@ void ATP_ThirdPersonCharacter::StartClimb(ACPP_Climbable* climbObj)
 		climbPoint = ClimbPoint::Start;
 	else
 		climbPoint = ClimbPoint::Hit;
-	MoveToClimbTimeline.PlayFromStart();
+	MoveToClimbTimeline->PlayFromStart();
 }
 
 void ATP_ThirdPersonCharacter::StopClimb()
@@ -764,7 +804,7 @@ void ATP_ThirdPersonCharacter::OnLerpToJumpFinish()
 	{
 		jumpDir = JumpDir::Forward;
 		prevPos = prevPos + FVector(0.0f, 0.0f, 15.0f);
-		JumpEdgeTimeline.PlayFromStart();
+		JumpEdgeTimeline->PlayFromStart();
 	}
 	else if (jumpDir == JumpDir::Forward)
 	{
@@ -787,6 +827,76 @@ void ATP_ThirdPersonCharacter::OnClimbJumpFinish()
 	rockClimbing = false;
 	if (!rockClimbEnd)
 		hangRock = true;
+}
+
+void ATP_ThirdPersonCharacter::SetUpTransport(ATransport* p_Transport) {
+	Transport = p_Transport;
+	// GetCharacterMovement()->GravityScale = 0;
+	// GetCharacterMovement()->GravityScale = 0;
+}
+
+void ATP_ThirdPersonCharacter::ClearTransport() {
+	Transport = nullptr;
+	// GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
+}
+
+void ATP_ThirdPersonCharacter::UseFlourBomb() {
+	if (FlourBombNum > 0) {
+		UE_LOG(LogTemp, Warning, TEXT("Blocked"));
+
+		FlourBombNum--;
+		Block = true;
+		GetWorldTimerManager().SetTimer(FlourBombTimer, this, &ATP_ThirdPersonCharacter::ClearFlourBomb, FlourBombDuration, false, FlourBombDuration);
+	}
+}
+
+void ATP_ThirdPersonCharacter::ClearFlourBomb() {
+	UE_LOG(LogTemp, Warning, TEXT("Clear"));
+	Block = false;
+}
+
+void ATP_ThirdPersonCharacter::Hook()
+{
+	if (!swing)
+	{
+		TArray<FHitResult> hits;
+		TArray<AActor*> ignoreActors;
+		FVector start = this->GetActorLocation();
+		bool hitResult = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), start, start, hookDis,
+			UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignoreActors, EDrawDebugTrace::ForDuration, hits, true);
+		if (hitResult && HookObj)
+		{
+			float minDis = hookDis;
+			FVector end;
+			for (FHitResult hit : hits)
+			{
+				FVector pos = hit.Actor->GetActorLocation();
+				float dis = UKismetMathLibrary::Vector_Distance(pos, start);
+				if (dis <= minDis)
+				{
+					minDis = dis;
+					end = pos;
+				}
+			}
+			HookObj->Launch(start, end, this);
+		}
+	}
+	else
+	{
+		swing = false;
+		GetCapsuleComponent()->SetWorldRotation(GetCapsuleComponent()->GetRelativeRotation());
+		GetCapsuleComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		LaunchCharacter(HookObj->GetEnd()->GetComponentVelocity() * launchRate, false, false);
+		HookObj->Release();
+	}
+}
+
+void ATP_ThirdPersonCharacter::AdjustRope(float axisVal)
+{
+	if (swing && axisVal != 0)
+	{
+		HookObj->ChangeRopeLength(axisVal);
+	}
 }
 
 void ATP_ThirdPersonCharacter::AddToInventory(TEnumAsByte<ECollectableType> type, FString name)
@@ -836,30 +946,4 @@ void ATP_ThirdPersonCharacter::Craft(FString name)
 		}
 		return;
 	}
-}
-
-void ATP_ThirdPersonCharacter::SetUpTransport(ATransport* p_Transport) {
-	Transport = p_Transport;
-	// GetCharacterMovement()->GravityScale = 0;
-	// GetCharacterMovement()->GravityScale = 0;
-}
-
-void ATP_ThirdPersonCharacter::ClearTransport() {
-	Transport = nullptr;
-	// GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
-}
-
-void ATP_ThirdPersonCharacter::UseFlourBomb() {
-	if (FlourBombNum > 0) {
-		UE_LOG(LogTemp, Warning, TEXT("Blocked"));
-
-		FlourBombNum--;
-		Block = true;
-		GetWorldTimerManager().SetTimer(FlourBombTimer, this, &ATP_ThirdPersonCharacter::ClearFlourBomb, FlourBombDuration, false, FlourBombDuration);
-	}
-}
-
-void ATP_ThirdPersonCharacter::ClearFlourBomb() {
-	UE_LOG(LogTemp, Warning, TEXT("Clear"));
-	Block = false;
 }

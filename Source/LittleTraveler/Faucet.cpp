@@ -15,6 +15,8 @@ AFaucet::AFaucet()
 	Water->SetCollisionProfileName("NoCollision");
 	Water->SetHiddenInGame(true);
 
+	LiftTimeline = CreateDefaultSubobject<UTimelineComponent>("LiftTimeline");
+
 	this->Tags.Add("Faucet");
 }
 
@@ -26,7 +28,7 @@ void AFaucet::BeginPlay()
 	{
 		FOnTimelineFloat LiftCallback;
 		LiftCallback.BindUFunction(this, FName("LiftWater"));
-		LiftTimeline.AddInterpFloat(LiftCurve, LiftCallback);
+		LiftTimeline->AddInterpFloat(LiftCurve, LiftCallback);
 	}
 	for (int i = 0; i < SinkWater.Num(); i++)
 	{
@@ -43,7 +45,7 @@ void AFaucet::BeginPlay()
 void AFaucet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	LiftTimeline.TickTimeline(DeltaTime);
+	//LiftTimeline.TickTimeline(DeltaTime);
 }
 
 void AFaucet::LiftWater(float value)
@@ -60,6 +62,6 @@ void AFaucet::Activate()
 	{
 		lifting = true;
 		Water->SetHiddenInGame(false);
-		LiftTimeline.PlayFromStart();
+		LiftTimeline->PlayFromStart();
 	}
 }

@@ -84,6 +84,8 @@ ACPP_Pushable::ACPP_Pushable()
 	Box3->OnComponentBeginOverlap.AddDynamic(this, &ACPP_Pushable::OnBox3BeginOverlap);
 	Box3->OnComponentEndOverlap.AddDynamic(this, &ACPP_Pushable::OnBox3EndOverlap);
 
+	TiltTimeline = CreateDefaultSubobject<UTimelineComponent>("TiltTimeline");
+
 	direction = FVector(0, 0, 0);
 	disToPlayer = FVector(0, 0, 0);
 	tiltPointPos = FVector(0, 0, 0);
@@ -100,15 +102,15 @@ void ACPP_Pushable::BeginPlay()
 		FOnTimelineEventStatic TimelineFinishedCallback;
 		TimelineCallback.BindUFunction(this, FName("TiltAroundPoint"));
 		TimelineFinishedCallback.BindUFunction(this, FName("StopTilt"));
-		TiltTimeline.AddInterpFloat(TiltCurve, TimelineCallback);
-		TiltTimeline.SetTimelineFinishedFunc(TimelineFinishedCallback);
+		TiltTimeline->AddInterpFloat(TiltCurve, TimelineCallback);
+		TiltTimeline->SetTimelineFinishedFunc(TimelineFinishedCallback);
 	}
 }
 
 void ACPP_Pushable::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	TiltTimeline.TickTimeline(DeltaTime);
+	//TiltTimeline.TickTimeline(DeltaTime);
 	if (moving && Player!=NULL)
 	{
 		FVector temptPos = Player->GetActorLocation() + disToPlayer;
@@ -184,7 +186,7 @@ void ACPP_Pushable::Tilt()
 	rotateVec = this->GetActorLocation() - tiltPointPos;
 	moving = false;
 	Mesh->SetCollisionProfileName("BlockAll");
-	TiltTimeline.PlayFromStart();
+	TiltTimeline->PlayFromStart();
 }
 
 void ACPP_Pushable::TiltAroundPoint(float angle)

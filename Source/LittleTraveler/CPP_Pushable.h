@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Interactable.h"
-#include "Components/TimelineComponent.h"
 #include "CPP_Pushable.generated.h"
 
 UCLASS()
@@ -45,6 +44,9 @@ class LITTLETRAVELER_API ACPP_Pushable : public AInteractable
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UBoxComponent* Box3;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class UTimelineComponent* TiltTimeline;
+
 	UPROPERTY()
 		class ATP_ThirdPersonCharacter* Player;
 	int32 pushedSide;
@@ -56,8 +58,6 @@ class LITTLETRAVELER_API ACPP_Pushable : public AInteractable
 	float prevZ;
 	bool moving;
 	bool pushed;
-
-	FTimeline TiltTimeline;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Push")

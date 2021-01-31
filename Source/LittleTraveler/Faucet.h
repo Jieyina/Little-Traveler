@@ -18,12 +18,14 @@ class LITTLETRAVELER_API AFaucet : public AInteractable
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* Water;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class UTimelineComponent* LiftTimeline;
+
 	bool lifting;
 	TArray<FVector> waterPrevPos;
 	TArray<FVector> itemPrevPos;
 	TArray<FVector> waterDes;
 	TArray<FVector> itemDes;
-	FTimeline LiftTimeline;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Faucet")

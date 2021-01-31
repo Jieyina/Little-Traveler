@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Components/TimelineComponent.h"
 #include "../LittleTravelerTypes.h"
 #include "../Transport.h"
 #include "TP_ThirdPersonCharacter.generated.h"
@@ -36,6 +35,18 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* GlideEquip;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class UTimelineComponent* MoveToPushTimeline;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class UTimelineComponent* MoveToClimbTimeline;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class UTimelineComponent* JumpEdgeTimeline;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class UTimelineComponent* RockClimbTimeline;
+
 	UPROPERTY()
 		class APlayerStart* PlayerStart;
 
@@ -50,7 +61,6 @@ class ATP_ThirdPersonCharacter : public ACharacter
 		bool pushing;
 	float pushSpeed;
 	FVector pushDir;
-	FTimeline MoveToPushTimeline;
 
 	FVector prevPos;
 	FRotator prevRot;
@@ -88,8 +98,6 @@ class ATP_ThirdPersonCharacter : public ACharacter
 		Forward = 2
 	};
 	JumpDir jumpDir;
-	FTimeline MoveToClimbTimeline;
-	FTimeline JumpEdgeTimeline;
 
 	UPROPERTY()
 		class ALine* Line;
@@ -110,7 +118,6 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	FRotator rockClimbRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		FVector offsets = FVector(0.0f, -4.0f, 3.0f);
-	FTimeline RockClimbTimeline;
 	float prevLength = 35.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		float climbingLength = 65.f;
@@ -149,6 +156,12 @@ class ATP_ThirdPersonCharacter : public ACharacter
 		bool Block = false;
 	FTimerHandle FlourBombTimer;
 
+	// Grappling Hook
+	UPROPERTY()
+		class AHook* HookObj;
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		bool swing;
+
 	TMap<FString, int32> resources;
 	TMap<FString, int32> questItems;
 	TMap<FString, int32> treasures;
@@ -175,6 +188,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Climb")
 		float climbSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "BP Setting|Hook")
+		float hookDis;
+
+	UPROPERTY(EditAnywhere, Category = "BP Setting|Hook")
+		float launchRate;
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Craft")
 		TArray<FCraftItem> CraftItems;
@@ -236,6 +255,9 @@ protected:
 	void StopClimb();
 	bool IsExceedEnd(FVector pos);
 	bool IsExceedStart(FVector pos);
+
+	void Hook();
+	void AdjustRope(float axisVal);
 
 	void AddToInventory(TEnumAsByte<ECollectableType> type, FString name);
 
@@ -306,6 +328,8 @@ public:
 	inline void SetCanJumpNode(bool p_CanJumpNode) { canJumpNode = p_CanJumpNode; }
 	inline void SetNextNode(class AJumpableNode* p_Next) { NextNode = p_Next; }
 	inline void SetCurRock(AActor* p_Rock) { CurRock = p_Rock; }
+
+	inline void SetSwing(bool val) { swing = val; }
 
 	void TurnToForward(FVector p_Forward);
 
