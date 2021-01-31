@@ -138,6 +138,17 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	// Vehicle
 	ATransport* Transport = nullptr;
 
+	// Flour bomb
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		float FlourBombDuration = 10.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		float FlourBombRadius = 50;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		int FlourBombNum = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		bool Block = false;
+	FTimerHandle FlourBombTimer;
+
 	TMap<FString, int32> resources;
 	TMap<FString, int32> questItems;
 	TMap<FString, int32> treasures;
@@ -249,6 +260,11 @@ protected:
 		void ClimbJump(float value);
 	UFUNCTION()
 		void OnClimbJumpFinish();
+
+	UFUNCTION()
+		void UseFlourBomb();
+	UFUNCTION()
+		void ClearFlourBomb();
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

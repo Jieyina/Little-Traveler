@@ -13,6 +13,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "TimerManager.h"
+
 #include "../Line.h"
 #include "../CPP_Pushable.h"
 #include "../CPP_Climbable.h"
@@ -138,6 +140,7 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATP_ThirdPersonCharacter::Interact);
 	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ATP_ThirdPersonCharacter::Glide);
+	PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseFlourBomb);
 }
 
 
@@ -844,4 +847,19 @@ void ATP_ThirdPersonCharacter::SetUpTransport(ATransport* p_Transport) {
 void ATP_ThirdPersonCharacter::ClearTransport() {
 	Transport = nullptr;
 	// GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
+}
+
+void ATP_ThirdPersonCharacter::UseFlourBomb() {
+	if (FlourBombNum > 0) {
+		UE_LOG(LogTemp, Warning, TEXT("Blocked"));
+
+		FlourBombNum--;
+		Block = true;
+		GetWorldTimerManager().SetTimer(FlourBombTimer, this, &ATP_ThirdPersonCharacter::ClearFlourBomb, FlourBombDuration, false, FlourBombDuration);
+	}
+}
+
+void ATP_ThirdPersonCharacter::ClearFlourBomb() {
+	UE_LOG(LogTemp, Warning, TEXT("Clear"));
+	Block = false;
 }
