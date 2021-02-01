@@ -866,7 +866,7 @@ void ATP_ThirdPersonCharacter::Hook()
 			UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignoreActors, EDrawDebugTrace::ForDuration, hits, true);
 		if (hitResult && HookObj)
 		{
-			float minDis = hookDis;
+			float minDis = 9999;
 			FVector end;
 			for (FHitResult hit : hits)
 			{
