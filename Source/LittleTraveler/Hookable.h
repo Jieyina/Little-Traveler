@@ -14,9 +14,6 @@ class LITTLETRAVELER_API AHookable : public AActor
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-		class USceneComponent* Root;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		class UStaticMeshComponent* Mesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")

@@ -5,9 +5,11 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/TimelineComponent.h"
+//#include "Components/SkeletalMeshComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "CableComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
 
 // Sets default values
@@ -45,6 +47,7 @@ AHook::AHook()
 	endPos = FVector(0, 0, 0);
 
 	stopHeight = 20.0f;
+	stopDis = 50.0f;
 	swingForce = 100.0f;
 	shrinkRate = 0.5f;
 }
@@ -86,13 +89,15 @@ void AHook::Tick(float DeltaTime)
 
 void AHook::Launch(FVector start, FVector end, ATP_ThirdPersonCharacter* player)
 {
-	this->SetActorLocation(end);
-	Hook->SetWorldLocation(start);
-	End->SetWorldLocation(start);
-	this->SetActorHiddenInGame(false);
 	startPos = start;
 	endPos = end;
 	Player = player;
+	this->SetActorLocation(end);
+	Hook->SetWorldLocation(start);
+	End->AttachToComponent(player->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget,
+		EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("None"));
+	//End->SetWorldLocation(start);
+	this->SetActorHiddenInGame(false);
 	ShootTimeline->PlayFromStart();
 }
 
@@ -103,11 +108,16 @@ void AHook::LerpToShoot(float value)
 
 void AHook::OnShootFinish()
 {
+	Player->SetShooting(false);
+	Player->GetCharacterMovement()->StopMovementImmediately();
+	Player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+	Player->SetPulled(true);
+	End->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	startPos = End->GetComponentLocation();
 	End->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(startPos, endPos));
 	End->AddLocalRotation(FRotator(-90, 0, 0));
 	Player->AttachToComponent(End, FAttachmentTransformRules(EAttachmentRule::KeepWorld, 
 		EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true), FName("None"));
-	Player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
 	PullTimeline->PlayFromStart();
 }
 
@@ -118,6 +128,7 @@ void AHook::LerpToPull(float value)
 
 void AHook::OnPullFinish()
 {
+	Player->SetPulled(false);
 	End->SetSimulatePhysics(true);
 	Constraint->SetConstrainedComponents(Hook, FName("None"), End, FName("None"));
 	Player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
@@ -134,6 +145,10 @@ void AHook::Swing(FVector dir)
 
 void AHook::ChangeRopeLength(float axisVal)
 {
+	if (axisVal > 0 && UKismetMathLibrary::Vector_Distance(Hook->GetComponentLocation(), End->GetComponentLocation()) < stopHeight)
+	{
+		return;
+	}
 	Constraint->SetConstrainedComponents(nullptr, FName("None"), nullptr, FName("None"));
 	End->AddWorldOffset(UKismetMathLibrary::Normal(Hook->GetComponentLocation() - End->GetComponentLocation()) * shrinkRate * axisVal);
 	Constraint->SetConstrainedComponents(Hook, FName("None"), End, FName("None"));

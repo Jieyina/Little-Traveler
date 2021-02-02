@@ -116,6 +116,8 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	rockClimbPos = FVector(0, 0, 0);
 	rockClimbRot = FRotator(0, 0, 0);
 
+	shooting = false;
+	pulled = false;
 	swing = false;
 	hookDis = 100.0f;
 	launchRate = 1.5f;
@@ -251,7 +253,7 @@ void ATP_ThirdPersonCharacter::MoveForward(float Value)
 	}
 	if (!isOnNode && canMove && Controller != NULL)
 	{
-		if (hangRock)
+		if (hangRock || pulled)
 			return;
 		if (pushing)
 		{
@@ -300,7 +302,7 @@ void ATP_ThirdPersonCharacter::MoveRight(float Value)
 	}
 	if (!isOnNode && canMove && Controller != NULL)
 	{
-		if (hangRock || pushing)
+		if (hangRock || pushing || pulled)
 			return;
 		if (climbing)
 		{
@@ -859,6 +861,8 @@ void ATP_ThirdPersonCharacter::Hook()
 {
 	if (!swing)
 	{
+		if (gliding)
+			StopGlide();
 		TArray<FHitResult> hits;
 		TArray<AActor*> ignoreActors;
 		FVector start = this->GetActorLocation();
@@ -870,7 +874,7 @@ void ATP_ThirdPersonCharacter::Hook()
 			FVector end;
 			for (FHitResult hit : hits)
 			{
-				FVector pos = hit.Actor->GetActorLocation();
+				FVector pos = hit.Actor->GetRootComponent()->GetSocketLocation(FName("HookPoint"));
 				float dis = UKismetMathLibrary::Vector_Distance(pos, start);
 				if (dis <= minDis)
 				{
@@ -878,6 +882,7 @@ void ATP_ThirdPersonCharacter::Hook()
 					end = pos;
 				}
 			}
+			shooting = true;
 			HookObj->Launch(start, end, this);
 		}
 	}

@@ -160,6 +160,10 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY()
 		class AHook* HookObj;
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		bool shooting;
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		bool pulled;
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool swing;
 
 	TMap<FString, int32> resources;
@@ -329,6 +333,8 @@ public:
 	inline void SetNextNode(class AJumpableNode* p_Next) { NextNode = p_Next; }
 	inline void SetCurRock(AActor* p_Rock) { CurRock = p_Rock; }
 
+	inline void SetShooting(bool val) { shooting = val; }
+	inline void SetPulled(bool val) { pulled = val; }
 	inline void SetSwing(bool val) { swing = val; }
 
 	void TurnToForward(FVector p_Forward);

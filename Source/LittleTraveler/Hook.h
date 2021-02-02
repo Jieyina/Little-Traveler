@@ -42,6 +42,9 @@ protected:
 		float stopHeight;
 
 	UPROPERTY(EditAnywhere, Category = "Hook")
+		float stopDis;
+
+	UPROPERTY(EditAnywhere, Category = "Hook")
 		float swingForce;
 
 	UPROPERTY(EditAnywhere, Category = "Hook")
