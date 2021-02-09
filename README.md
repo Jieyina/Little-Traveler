@@ -2,7 +2,7 @@
 
 ## Conflict Prevention
 **IMPORTANT!**
-To avoid conflict, before modifying non-code files (level and art assets), please go to the Jira board and check issue LT-64 to make sure others are not modifying the files. Before actual modification, please create a sub-task for each file to be modified and delete the sub-task after the modification is finished.
+To avoid conflict, before modifying non-code files (level and art assets), please go to [chechout file sheet](https://docs.google.com/spreadsheets/d/1Raw4orohCqlCXNWfu6pfoJkLtve7UDI0CvcxxvpRpXI/edit#gid=0) to check out the files and delete the checkout after modification is finished.
 
 ## Possible Issues
 1. If a window pops up when lauching the game saying "Missing LittleTraveler Modules", simply click "Yes" to rebuild the project.
