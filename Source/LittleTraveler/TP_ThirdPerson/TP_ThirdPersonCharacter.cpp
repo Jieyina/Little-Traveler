@@ -408,9 +408,9 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 	}
 
 	euipItems.Add(EuipItem::FlourBomb);
-	if (curLevel == 1)
-		euipItems.Add(EuipItem::Hook);
 	if (curLevel > 1)
+		euipItems.Add(EuipItem::Hook);
+	if (curLevel > 2)
 		euipItems.Add(EuipItem::BubbleWand);
 
 	initAirContol = GetCharacterMovement()->AirControl;
