@@ -19,6 +19,14 @@ public:
 		TMap<FString, int32> materials;
 };
 
+UENUM()
+enum EuipItem
+{
+	FlourBomb = 0,
+	Hook = 1,
+	BubbleWand = 2
+};
+
 UCLASS(config = Game)
 class ATP_ThirdPersonCharacter : public ACharacter
 {
@@ -46,6 +54,10 @@ class ATP_ThirdPersonCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UTimelineComponent* RockClimbTimeline;
+
+	UPROPERTY()
+		TArray<TEnumAsByte<EuipItem>> euipItems;
+	EuipItem curEuip;
 
 	UPROPERTY()
 		class APlayerStart* PlayerStart;
@@ -88,7 +100,7 @@ class ATP_ThirdPersonCharacter : public ACharacter
 		None = 0,
 		Start = 1,
 		End = 2,
-		Hit = 3,
+		Hit = 3
 	};
 	ClimbPoint climbPoint;
 	enum JumpDir
@@ -151,7 +163,7 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		float FlourBombRadius = 50;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		int FlourBombNum = 1;
+		int FlourBombNum = 100;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		bool Block = false;
 	FTimerHandle FlourBombTimer;
@@ -172,6 +184,9 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	TArray<FString> craftedTools;
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "BP Setting|Game")
+		int curLevel;
+
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Reference")
 		UClass* CharacterBP;
 
@@ -251,6 +266,8 @@ protected:
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
 	void Interact();
+	void SwitchEuip();
+	void UseEuip();
 	void Glide();
 	void StopGlide();
 

@@ -79,6 +79,9 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	JumpEdgeTimeline = CreateDefaultSubobject<UTimelineComponent>("JumpEdgeTimeline");
 	RockClimbTimeline = CreateDefaultSubobject<UTimelineComponent>("RockClimbTimeline");
 
+	curLevel = 0;
+	curEuip = EuipItem::FlourBomb;
+
 	traceDistance = 30.0f;
 
 	jumping = false;
@@ -153,9 +156,11 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ATP_ThirdPersonCharacter::OnResetVR);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATP_ThirdPersonCharacter::Interact);
-	PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ATP_ThirdPersonCharacter::Glide);
-	PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseFlourBomb);
-	PlayerInputComponent->BindAction("Hook", IE_Pressed, this, &ATP_ThirdPersonCharacter::Hook);
+	PlayerInputComponent->BindAction("SwitchEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::SwitchEuip);
+	PlayerInputComponent->BindAction("UseEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseEuip);
+	//PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ATP_ThirdPersonCharacter::Glide);
+	//PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseFlourBomb);
+	//PlayerInputComponent->BindAction("Hook", IE_Pressed, this, &ATP_ThirdPersonCharacter::Hook);
 }
 
 
@@ -195,8 +200,8 @@ void ATP_ThirdPersonCharacter::OnJumpPressed()
 		}
 		return;
 	}
-	if (canJumpNode) {
-		
+	if (canJumpNode) 
+	{
 		if (NextNode) {
 			canJumpNode = false;
 			isJumpingNode = true;
@@ -204,8 +209,20 @@ void ATP_ThirdPersonCharacter::OnJumpPressed()
 			JumpableNodePosition = NextNode->GetActorLocation() + NextNode->PlayerOffsets;
 			GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Flying;
 		}
+		return;
 	}
-	if (rockClimbing || hangRock || isJumpingNode)
+	if (canGlide && GetCharacterMovement()->IsFalling())
+	{
+		gliding = true;
+		canGlide = false;
+		GlideEquip->SetHiddenInGame(false);
+		LaunchCharacter(FVector(0, 0, 5), false, true);
+		GetCharacterMovement()->GravityScale = glideGravity;
+		GetCharacterMovement()->AirControl = 1.0f;
+		UpdateGlideUI(false);
+		return;
+	}
+	if (rockClimbing || hangRock || isJumpingNode || pulled || swing)
 		return;
 	if (pushing)
 		StopPush();
@@ -389,6 +406,12 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 		RockClimbTimeline->AddInterpFloat(ClimbRockCurve, ClimbRockCallback);
 		RockClimbTimeline->SetTimelineFinishedFunc(ClimbRockFinishCallback);
 	}
+
+	euipItems.Add(EuipItem::FlourBomb);
+	if (curLevel > 1)
+		euipItems.Add(EuipItem::Hook);
+	if (curLevel > 2)
+		euipItems.Add(EuipItem::BubbleWand);
 
 	initAirContol = GetCharacterMovement()->AirControl;
 	initGravity = GetCharacterMovement()->GravityScale;
@@ -666,6 +689,27 @@ void ATP_ThirdPersonCharacter::StopPush(bool changeCollision)
 		PushObj->SetMoving(false);
 	}
 	pushing = false;
+}
+
+void ATP_ThirdPersonCharacter::SwitchEuip()
+{
+	curEuip = euipItems[(curEuip + 1) % euipItems.Num()];
+	GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, FString::Printf(TEXT("curEquip %d"), (int)curEuip));
+}
+
+void ATP_ThirdPersonCharacter::UseEuip()
+{
+	if (curEuip == EuipItem::FlourBomb)
+	{
+		UseFlourBomb();
+		GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, "use flour bomb");
+		return;
+	}
+	if (curEuip == EuipItem::Hook)
+	{
+		Hook();
+		return;
+	}
 }
 
 bool ATP_ThirdPersonCharacter::IsExceedEnd(FVector pos)
