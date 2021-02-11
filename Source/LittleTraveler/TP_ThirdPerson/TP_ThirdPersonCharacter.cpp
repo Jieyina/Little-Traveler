@@ -159,7 +159,7 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("SwitchEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::SwitchEuip);
 	PlayerInputComponent->BindAction("UseEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseEuip);
 	//PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ATP_ThirdPersonCharacter::Glide);
-	PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseFlourBomb);
+	//PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseFlourBomb);
 	//PlayerInputComponent->BindAction("Hook", IE_Pressed, this, &ATP_ThirdPersonCharacter::Hook);
 }
 
