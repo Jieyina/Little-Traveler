@@ -5,12 +5,13 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/TimelineComponent.h"
-//#include "Components/SkeletalMeshComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "CableComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
+#include "Engine/Engine.h"
+
 
 // Sets default values
 AHook::AHook()
@@ -45,7 +46,9 @@ AHook::AHook()
 
 	startPos = FVector(0, 0, 0);
 	endPos = FVector(0, 0, 0);
-
+	startRot = FRotator(0, 0, 0);
+	desPos = FVector(0, 0, 0);
+	desRot = FRotator(0, 0, 0);
 	stopHeight = 20.0f;
 	stopDis = 50.0f;
 	swingForce = 100.0f;
@@ -87,14 +90,15 @@ void AHook::Tick(float DeltaTime)
 
 }
 
-void AHook::Launch(FVector start, FVector end, ATP_ThirdPersonCharacter* player)
+void AHook::Launch(AActor* hookedObj, ATP_ThirdPersonCharacter* player)
 {
-	startPos = start;
-	endPos = end;
 	Player = player;
-	this->SetActorLocation(end);
-	Hook->SetWorldLocation(start);
-	End->AttachToComponent(player->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget,
+	HookedObj = hookedObj;
+	startPos = Player->GetActorLocation();
+	endPos = HookedObj->GetActorLocation();
+	this->SetActorLocation(endPos);
+	Hook->SetWorldLocation(startPos);
+	End->AttachToComponent(Player->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget,
 		EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("None"));
 	//End->SetWorldLocation(start);
 	this->SetActorHiddenInGame(false);
@@ -106,6 +110,11 @@ void AHook::LerpToShoot(float value)
 	Hook->SetWorldLocation(UKismetMathLibrary::VLerp(startPos, endPos, value));
 }
 
+bool AHook::BeforeHookPoint(FVector pos)
+{
+	return FVector::DotProduct(endPos - pos, Player->GetActorForwardVector()) >= 0;
+}
+
 void AHook::OnShootFinish()
 {
 	Player->SetShooting(false);
@@ -114,16 +123,26 @@ void AHook::OnShootFinish()
 	Player->SetPulled(true);
 	End->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	startPos = End->GetComponentLocation();
+	startRot = End->GetComponentRotation();
 	End->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(startPos, endPos));
-	End->AddLocalRotation(FRotator(-90, 0, 0));
+	if (BeforeHookPoint(startPos))
+		End->AddLocalRotation(FRotator(-90, 0, 0));
+	else
+		End->AddLocalRotation(FRotator(90, 180, 0));
 	Player->AttachToComponent(End, FAttachmentTransformRules(EAttachmentRule::KeepWorld, 
 		EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true), FName("None"));
+	desPos = endPos + FVector(0, 0, -UKismetMathLibrary::Vector_Distance(startPos, endPos));
+	if (FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetActorForwardVector()) >= 0)
+		desRot = FRotator(0, HookedObj->GetActorRotation().Yaw, 0);
+	else
+		desRot = FRotator(0, HookedObj->GetActorRotation().Yaw + 180, 0);
 	PullTimeline->PlayFromStart();
 }
 
 void AHook::LerpToPull(float value)
 {
-	End->SetWorldLocation(UKismetMathLibrary::VLerp(startPos, endPos, value));
+	End->SetWorldLocation(UKismetMathLibrary::VLerp(startPos, desPos, value));
+	End->SetWorldRotation(UKismetMathLibrary::RLerp(startRot, desRot, value, true));
 }
 
 void AHook::OnPullFinish()
@@ -133,13 +152,16 @@ void AHook::OnPullFinish()
 	Constraint->SetConstrainedComponents(Hook, FName("None"), End, FName("None"));
 	Player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	Player->SetSwing(true);
+	End->SetPhysicsLinearVelocity(FVector(0, 0, 0));
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, End->GetComponentVelocity().ToString());
 }
 
-void AHook::Swing(FVector dir)
+void AHook::Swing(float axisVal)
 {
 	if (Hook->GetComponentLocation().Z - End->GetComponentLocation().Z > stopHeight)
 	{
-		End->AddForce(dir * swingForce, FName("None"), true);
+		End->AddForce(UKismetMathLibrary::SignOfFloat(FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetActorForwardVector())) * 
+			axisVal * swingForce * HookedObj->GetActorForwardVector(), FName("None"), true);
 	}
 }
 

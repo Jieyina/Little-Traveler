@@ -34,8 +34,13 @@ class LITTLETRAVELER_API AHook : public AActor
 
 	FVector startPos;
 	FVector endPos;
+	FRotator startRot;
+	FVector desPos;
+	FRotator desRot;
 	UPROPERTY()
 		class ATP_ThirdPersonCharacter* Player;
+	UPROPERTY()
+		AActor* HookedObj;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Hook")
@@ -73,12 +78,14 @@ protected:
 	UFUNCTION()
 		void OnPullFinish();
 
+	bool BeforeHookPoint(FVector pos);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void Launch(FVector start, FVector end, ATP_ThirdPersonCharacter* player);
-	void Swing(FVector dir);
+	void Launch(AActor* hookedObj, ATP_ThirdPersonCharacter* player);
+	void Swing(float axisVal);
 	void ChangeRopeLength(float axisVal);
 	void Release();
 

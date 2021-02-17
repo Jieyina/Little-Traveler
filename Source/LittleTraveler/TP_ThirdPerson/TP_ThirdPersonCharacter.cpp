@@ -287,12 +287,13 @@ void ATP_ThirdPersonCharacter::MoveForward(float Value)
 		}
 		if (swing && Value != 0.0f)
 		{
-			FVector hookProj = UKismetMathLibrary::ProjectVectorOnToPlane(HookObj->GetEnd()->GetForwardVector(), FVector(0, 0, 1));
-			FVector camFw = UKismetMathLibrary::GetForwardVector(FRotator(0, Controller->GetControlRotation().Yaw, 0)) * Value;
-			float angle = UKismetMathLibrary::SignOfFloat(hookProj.X * camFw.Y - camFw.X * hookProj.Y) * 
-				UKismetMathLibrary::DegAcos(UKismetMathLibrary::Dot_VectorVector(hookProj, camFw));
-			GetCapsuleComponent()->SetRelativeRotation(FRotator(0, angle, 0));
-			HookObj->Swing(camFw);
+			//FVector hookProj = UKismetMathLibrary::ProjectVectorOnToPlane(HookObj->GetEnd()->GetForwardVector(), FVector(0, 0, 1));
+			//FVector camFw = UKismetMathLibrary::GetForwardVector(FRotator(0, Controller->GetControlRotation().Yaw, 0));
+			//float angle = UKismetMathLibrary::SignOfFloat(hookProj.X * camFw.Y - camFw.X * hookProj.Y) * 
+			//	UKismetMathLibrary::DegAcos(UKismetMathLibrary::Dot_VectorVector(hookProj, camFw));
+			//GetCapsuleComponent()->SetRelativeRotation(FRotator(0, angle, 0));
+			//HookObj->Swing(camFw * Value);
+			HookObj->Swing(Value);
 			return;
 		}
 		if (Value != 0.0f)
@@ -319,7 +320,7 @@ void ATP_ThirdPersonCharacter::MoveRight(float Value)
 	}
 	if (!isOnNode && canMove && Controller != NULL)
 	{
-		if (hangRock || pushing || pulled)
+		if (hangRock || pushing || pulled || swing)
 			return;
 		if (climbing)
 		{
@@ -328,16 +329,16 @@ void ATP_ThirdPersonCharacter::MoveRight(float Value)
 				Climb(false, Value);
 			return;
 		}
-		if (swing && Value != 0.0f)
-		{
-			FVector hookProj = UKismetMathLibrary::ProjectVectorOnToPlane(HookObj->GetEnd()->GetForwardVector(), FVector(0, 0, 1));
-			FVector camR = UKismetMathLibrary::GetRightVector(FRotator(0, Controller->GetControlRotation().Yaw, 0)) * Value;
-			float angle = UKismetMathLibrary::SignOfFloat(hookProj.X * camR.Y - camR.X * hookProj.Y) *
-				UKismetMathLibrary::DegAcos(UKismetMathLibrary::Dot_VectorVector(hookProj, camR));
-			GetCapsuleComponent()->SetRelativeRotation(FRotator(0, angle, 0));
-			HookObj->Swing(camR);
-			return;
-		}
+		//if (swing && Value != 0.0f)
+		//{
+		//	FVector hookProj = UKismetMathLibrary::ProjectVectorOnToPlane(HookObj->GetEnd()->GetForwardVector(), FVector(0, 0, 1));
+		//	FVector camR = UKismetMathLibrary::GetRightVector(FRotator(0, Controller->GetControlRotation().Yaw, 0));
+		//	float angle = UKismetMathLibrary::SignOfFloat(hookProj.X * camR.Y - camR.X * hookProj.Y) *
+		//		UKismetMathLibrary::DegAcos(UKismetMathLibrary::Dot_VectorVector(hookProj, camR));
+		//	GetCapsuleComponent()->SetRelativeRotation(FRotator(0, angle, 0));
+		//	HookObj->Swing(camR * Value);
+		//	return;
+		//}
 		if (Value != 0.0f)
 		{
 			const FRotator Rotation = Controller->GetControlRotation();
@@ -702,7 +703,7 @@ void ATP_ThirdPersonCharacter::UseEuip()
 	if (curEuip == EuipItem::FlourBomb)
 	{
 		UseFlourBomb();
-		GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, "use flour bomb");
+		//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, "use flour bomb");
 		return;
 	}
 	if (curEuip == EuipItem::Hook)
@@ -915,19 +916,19 @@ void ATP_ThirdPersonCharacter::Hook()
 		if (hitResult && HookObj)
 		{
 			float minDis = 9999;
-			FVector end;
+			AActor* obj = nullptr;
 			for (FHitResult hit : hits)
 			{
-				FVector pos = hit.Actor->GetRootComponent()->GetSocketLocation(FName("HookPoint"));
+				FVector pos = hit.Actor->GetActorLocation();
 				float dis = UKismetMathLibrary::Vector_Distance(pos, start);
 				if (dis <= minDis)
 				{
 					minDis = dis;
-					end = pos;
+					obj = hit.GetActor();
 				}
 			}
 			shooting = true;
-			HookObj->Launch(start, end, this);
+			HookObj->Launch(obj, this);
 		}
 	}
 	else

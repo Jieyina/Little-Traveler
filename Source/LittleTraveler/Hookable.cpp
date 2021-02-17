@@ -4,6 +4,7 @@
 #include "Hookable.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/ArrowComponent.h"
 
 // Sets default values
 AHookable::AHookable()
@@ -19,6 +20,8 @@ AHookable::AHookable()
 	ShadeMesh->SetupAttachment(RootComponent);
 	ShadeMesh->SetCollisionProfileName("NoCollision");
 
+	Arrow = CreateDefaultSubobject<UArrowComponent>("Arrow");
+	Arrow->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
