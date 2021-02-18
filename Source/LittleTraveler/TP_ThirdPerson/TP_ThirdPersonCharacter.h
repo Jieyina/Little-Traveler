@@ -286,6 +286,8 @@ protected:
 		void InitUI();
 	UFUNCTION(BlueprintImplementableEvent)
 		void UpdateGlideUI(bool turnon);
+	UFUNCTION(BlueprintImplementableEvent)
+		void Talk(AActor* other);
 
 	UFUNCTION()
 		void LerpToPush(float value);

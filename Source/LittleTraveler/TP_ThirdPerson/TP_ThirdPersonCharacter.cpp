@@ -607,8 +607,6 @@ void ATP_ThirdPersonCharacter::Interact()
 	FVector end = start + this->GetActorForwardVector() * traceDistance;
 	bool hitResult = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), start, end, 2.0f,
 		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoreActors, EDrawDebugTrace::None, hit, true);
-	//GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_GameTraceChannel1);
-	//DrawDebugLine(GetWorld(), start, end, FColor::Red, false, 2.0f);
 	if (!hitResult)
 		return;
 	if (hit.Actor->ActorHasTag("Pushable"))
@@ -640,6 +638,10 @@ void ATP_ThirdPersonCharacter::Interact()
 		AFaucet* faucet = Cast<AFaucet>(hit.Actor);
 		if (faucet)
 			faucet->Activate();
+	}
+	else if (hit.Actor->ActorHasTag("Talk"))
+	{
+		Talk(hit.GetActor());
 	}
 	else if (hit.Actor->ActorHasTag("Collectable"))
 	{
