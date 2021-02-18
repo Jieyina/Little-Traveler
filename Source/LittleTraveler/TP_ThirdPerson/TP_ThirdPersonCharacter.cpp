@@ -124,6 +124,9 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	swing = false;
 	hookDis = 100.0f;
 	launchRate = 1.5f;
+
+	// Initialize audio component
+	FlourBombAudio = CreateDefaultSubobject<UAudioComponent>("FlourBombAudio");
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -890,7 +893,7 @@ void ATP_ThirdPersonCharacter::ClearTransport() {
 void ATP_ThirdPersonCharacter::UseFlourBomb() {
 	if (FlourBombNum > 0) {
 		UE_LOG(LogTemp, Warning, TEXT("Blocked"));
-
+		FlourBombAudio->Play();
 		FlourBombNum--;
 		Block = true;
 		GetWorldTimerManager().SetTimer(FlourBombTimer, this, &ATP_ThirdPersonCharacter::ClearFlourBomb, FlourBombDuration, false, FlourBombDuration);

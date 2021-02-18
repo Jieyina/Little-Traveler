@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/AudioComponent.h"
 #include "../LittleTravelerTypes.h"
 #include "../Transport.h"
 #include "TP_ThirdPersonCharacter.generated.h"
@@ -167,6 +168,8 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		bool Block = false;
 	FTimerHandle FlourBombTimer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UAudioComponent* FlourBombAudio;
 
 	// Grappling Hook
 	UPROPERTY()
