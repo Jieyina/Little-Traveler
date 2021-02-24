@@ -203,7 +203,7 @@ void ATP_ThirdPersonCharacter::OnJumpPressed()
 		}
 		return;
 	}
-	if (canJumpNode) 
+	if (canJumpNode)
 	{
 		if (NextNode) {
 			canJumpNode = false;
@@ -214,25 +214,19 @@ void ATP_ThirdPersonCharacter::OnJumpPressed()
 		}
 		return;
 	}
-	if (canGlide && GetCharacterMovement()->IsFalling())
-	{
-		gliding = true;
-		canGlide = false;
-		GlideEquip->SetHiddenInGame(false);
-		LaunchCharacter(FVector(0, 0, 5), false, true);
-		GetCharacterMovement()->GravityScale = glideGravity;
-		GetCharacterMovement()->AirControl = 1.0f;
-		UpdateGlideUI(false);
-		return;
-	}
 	if (rockClimbing || hangRock || isJumpingNode || pulled || swing)
 		return;
+	if (gliding)
+		StopGlide();
+	else if (canGlide && GetCharacterMovement()->IsFalling())
+	{
+		Glide();
+		return;
+	}
 	if (pushing)
 		StopPush();
 	if (climbing)
 		StopClimb();
-	if (gliding)
-		StopGlide();
 	Jump();
 	jumping = true;
 }
@@ -245,15 +239,15 @@ void ATP_ThirdPersonCharacter::OnJumpReleased()
 
 void ATP_ThirdPersonCharacter::TurnAtRate(float Rate)
 {
-	if(canMove)
-	// calculate delta for this frame from the rate information
+	if (canMove)
+		// calculate delta for this frame from the rate information
 		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void ATP_ThirdPersonCharacter::LookUpAtRate(float Rate)
 {
-	if(canMove)
-	// calculate delta for this frame from the rate information
+	if (canMove)
+		// calculate delta for this frame from the rate information
 		AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
@@ -411,15 +405,19 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 		RockClimbTimeline->SetTimelineFinishedFunc(ClimbRockFinishCallback);
 	}
 
-	euipItems.Add(EuipItem::FlourBomb);
-	if (curLevel > 1)
-		euipItems.Add(EuipItem::Hook);
-	if (curLevel > 2)
-		euipItems.Add(EuipItem::BubbleWand);
-
 	initAirContol = GetCharacterMovement()->AirControl;
 	initGravity = GetCharacterMovement()->GravityScale;
 	InitUI();
+
+	euipItems.Add(EuipItem::FlourBomb);
+	if (curLevel > 1)
+	{
+		euipItems.Add(EuipItem::Hook);
+		canGlide = true;
+		UpdateGlideUI(true);
+	}
+	if (curLevel > 2)
+		euipItems.Add(EuipItem::BubbleWand);
 }
 
 // Called every frame
@@ -445,7 +443,7 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 			float length = FMath::Lerp(GetCameraBoom()->TargetArmLength, climbingLength, 0.05f);
 			GetCameraBoom()->TargetArmLength = length;
 		}
-		
+
 		return;
 	}
 	if (isJumpingNode) {
@@ -471,9 +469,11 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 		FVector startOffset(0, 0, 0);
 		if (wallPosition.X != 0) {
 			startOffset.X = wallPosition.X - GetActorLocation().X - 15;
-		}else if (wallPosition.Y != 0) {
+		}
+		else if (wallPosition.Y != 0) {
 			startOffset.Y = wallPosition.Y - GetActorLocation().Y - 15;
-		}else if (wallPosition.Z != 0) {
+		}
+		else if (wallPosition.Z != 0) {
 			startOffset.Z = wallPosition.Z - GetActorLocation().Z - 15;
 		}
 
@@ -493,7 +493,7 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 		else {
 			temp_next = (Cast<ARock_Climbable>(CurRock))->CheckNext();
 		}
-		canClimbJump = (temp_next!=nullptr);
+		canClimbJump = (temp_next != nullptr);
 		if (canClimbJump)
 		{
 			if (temp_next != CurRock && temp_next != RockClimbObj) {
@@ -515,7 +515,8 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 				RockClimbObj = NULL;
 			}
 		}
-	}else if (!canClimbRock && !initializeClimbing) {
+	}
+	else if (!canClimbRock && !initializeClimbing) {
 		// UE_LOG(LogTemp, Warning, TEXT("Some warning message"));
 		GetCameraBoom()->TargetArmLength = prevLength;
 		GetCameraBoom()->TargetOffset = FVector(0, 0, 0);
@@ -538,21 +539,16 @@ void ATP_ThirdPersonCharacter::TurnToForward(FVector p_Forward) {
 
 void ATP_ThirdPersonCharacter::Glide()
 {
-	if (gliding)
+	if (curLevel <= 1)
 	{
-		StopGlide();
-		return;
-	}
-	if (canGlide && GetCharacterMovement()->IsFalling())
-	{
-		gliding = true;
 		canGlide = false;
-		GlideEquip->SetHiddenInGame(false);
-		LaunchCharacter(FVector(0, 0, 5), false, true);
-		GetCharacterMovement()->GravityScale = glideGravity;
-		GetCharacterMovement()->AirControl = 1.0f;
 		UpdateGlideUI(false);
 	}
+	gliding = true;
+	GlideEquip->SetHiddenInGame(false);
+	LaunchCharacter(FVector(0, 0, 5), false, true);
+	GetCharacterMovement()->GravityScale = glideGravity;
+	GetCharacterMovement()->AirControl = 1.0f;
 }
 
 void ATP_ThirdPersonCharacter::StopGlide()
@@ -757,7 +753,7 @@ void ATP_ThirdPersonCharacter::Climb(bool vertical, float axisValue)
 		TArray<AActor*> ignoreActors;
 		FVector start = this->GetActorLocation() + climbDis - climbDirF;
 		FVector end = start + climbDirF * 50;
-		bool hitResult = UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, 
+		bool hitResult = UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end,
 			UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoreActors, EDrawDebugTrace::None, hit, true);
 		//bool hitResult = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_GameTraceChannel1);
 		if (hitResult && hit.Actor->ActorHasTag("Climbable"))
