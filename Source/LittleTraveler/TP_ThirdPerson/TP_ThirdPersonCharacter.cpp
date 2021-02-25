@@ -410,6 +410,8 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 		RockClimbTimeline->SetTimelineFinishedFunc(ClimbRockFinishCallback);
 	}
 
+	euipItems.Add(EuipItem::FlourBomb);
+
 	initAirContol = GetCharacterMovement()->AirControl;
 	initGravity = GetCharacterMovement()->GravityScale;
 	InitUI();
@@ -430,7 +432,6 @@ void ATP_ThirdPersonCharacter::LoadLevelId()
 		}
 	}
 
-	euipItems.Add(EuipItem::FlourBomb);
 	if (curLevel > 1)
 	{
 		euipItems.Add(EuipItem::Hook);

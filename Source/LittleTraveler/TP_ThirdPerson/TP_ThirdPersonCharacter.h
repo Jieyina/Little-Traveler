@@ -58,13 +58,10 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UTimelineComponent* RockClimbTimeline;
 
-	UPROPERTY(VisibleAnywhere, Category = "BP Setting|Game", meta = (AllowPrivateAccess = "true"))
-		int curLevel;
-	FTimerHandle LoadLevelIdTimer;
-
 	UPROPERTY()
 		TArray<TEnumAsByte<EuipItem>> euipItems;
 	EuipItem curEuip;
+	FTimerHandle LoadLevelIdTimer;
 
 	UPROPERTY()
 		class APlayerStart* PlayerStart;
@@ -199,6 +196,8 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	TArray<FString> craftedTools;
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "BP Setting|Game")
+		int curLevel;
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Reference")
 		UClass* CharacterBP;
