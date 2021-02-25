@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/AudioComponent.h"
+#include "Engine/EngineTypes.h"
 #include "../LittleTravelerTypes.h"
 #include "../Transport.h"
 #include "TP_ThirdPersonCharacter.generated.h"
@@ -56,6 +57,10 @@ class ATP_ThirdPersonCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UTimelineComponent* RockClimbTimeline;
+
+	UPROPERTY(VisibleAnywhere, Category = "BP Setting|Game", meta = (AllowPrivateAccess = "true"))
+		int curLevel;
+	FTimerHandle LoadLevelIdTimer;
 
 	UPROPERTY()
 		TArray<TEnumAsByte<EuipItem>> euipItems;
@@ -194,8 +199,6 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	TArray<FString> craftedTools;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "BP Setting|Game")
-		int curLevel;
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Reference")
 		UClass* CharacterBP;
@@ -275,6 +278,7 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
+	void LoadLevelId();
 	void Interact();
 	void SwitchEuip();
 	void UseEuip();

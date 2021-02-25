@@ -414,6 +414,11 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 	initGravity = GetCharacterMovement()->GravityScale;
 	InitUI();
 
+	GetWorldTimerManager().SetTimer(LoadLevelIdTimer, this, &ATP_ThirdPersonCharacter::LoadLevelId, 0.5f, false);
+}
+
+void ATP_ThirdPersonCharacter::LoadLevelId()
+{
 	bool hasSave = UGameplayStatics::DoesSaveGameExist("save", 0);
 	if (hasSave)
 	{
@@ -421,7 +426,7 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 		if (save)
 		{
 			curLevel = save->GetLevelId();
-			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("curLevel %d"), curLevel));
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("curLevel %d"), curLevel));
 		}
 	}
 
