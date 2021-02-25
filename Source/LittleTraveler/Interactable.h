@@ -38,7 +38,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	FORCEINLINE UStaticMeshComponent* GetMesh() const { return Mesh; }
-	FORCEINLINE USphereComponent* GetCollider() const { return Collider; }
-	FORCEINLINE UStaticMeshComponent* GetShadeMesh() const { return ShadeMesh; }
+	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return Mesh; }
+	FORCEINLINE class USphereComponent* GetCollider() const { return Collider; }
+	FORCEINLINE class UStaticMeshComponent* GetShadeMesh() const { return ShadeMesh; }
 };
