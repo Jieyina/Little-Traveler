@@ -127,6 +127,8 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 
 	// Initialize audio component
 	FlourBombAudio = CreateDefaultSubobject<UAudioComponent>("FlourBombAudio");
+	GlidingAudio = CreateDefaultSubobject<UAudioComponent>("GlidingAudio");
+	ClimbingAudio = CreateDefaultSubobject<UAudioComponent>("ClimbingAudio");
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -278,8 +280,9 @@ void ATP_ThirdPersonCharacter::MoveForward(float Value)
 		if (climbing)
 		{
 			AxisForward = UKismetMathLibrary::Round(Value);
-			if (Value != 0.0f)
+			if (Value != 0.0f) {
 				Climb(true, Value);
+			}
 			return;
 		}
 		if (swing && Value != 0.0f)
@@ -322,8 +325,10 @@ void ATP_ThirdPersonCharacter::MoveRight(float Value)
 		if (climbing)
 		{
 			AxisRight = UKismetMathLibrary::Round(Value);
-			if (Value != 0.0f)
+			if (Value != 0.0f) {
 				Climb(false, Value);
+			}
+				
 			return;
 		}
 		//if (swing && Value != 0.0f)
@@ -544,6 +549,7 @@ void ATP_ThirdPersonCharacter::Glide()
 		canGlide = false;
 		UpdateGlideUI(false);
 	}
+	GlidingAudio->Play();
 	gliding = true;
 	GlideEquip->SetHiddenInGame(false);
 	LaunchCharacter(FVector(0, 0, 5), false, true);
@@ -726,6 +732,7 @@ bool ATP_ThirdPersonCharacter::IsExceedStart(FVector pos)
 
 void ATP_ThirdPersonCharacter::Climb(bool vertical, float axisValue)
 {
+	PlayClimbingAudio();
 	if (vertical)
 	{
 		FVector climbDis = climbDirV * axisValue * climbSpeed;
@@ -901,6 +908,19 @@ void ATP_ThirdPersonCharacter::UseFlourBomb() {
 void ATP_ThirdPersonCharacter::ClearFlourBomb() {
 	UE_LOG(LogTemp, Warning, TEXT("Clear"));
 	Block = false;
+}
+
+void ATP_ThirdPersonCharacter::PlayClimbingAudio() {
+	if (CanPlayClimbingAudio) {
+		CanPlayClimbingAudio = false;
+		ClimbingAudio->Play();
+		GetWorldTimerManager().SetTimer(ClimbingAudioTimer, this, &ATP_ThirdPersonCharacter::StopClimbingAudio, 0.6f, false);
+	}
+}
+
+void ATP_ThirdPersonCharacter::StopClimbingAudio() {
+	CanPlayClimbingAudio = true;
+	ClimbingAudio->Stop();
 }
 
 void ATP_ThirdPersonCharacter::Hook()

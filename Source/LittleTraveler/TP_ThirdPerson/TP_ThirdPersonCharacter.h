@@ -83,6 +83,8 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	bool canGlide;
 	float initAirContol;
 	float initGravity;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		class UAudioComponent* GlidingAudio;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool climbing;
@@ -111,6 +113,10 @@ class ATP_ThirdPersonCharacter : public ACharacter
 		Forward = 2
 	};
 	JumpDir jumpDir;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		class UAudioComponent* ClimbingAudio;
+	FTimerHandle ClimbingAudioTimer;
+	bool CanPlayClimbingAudio = true;
 
 	UPROPERTY()
 		class ALine* Line;
@@ -313,6 +319,11 @@ protected:
 		void UseFlourBomb();
 	UFUNCTION()
 		void ClearFlourBomb();
+
+	UFUNCTION()
+		void PlayClimbingAudio();
+	UFUNCTION()
+		void StopClimbingAudio();
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
