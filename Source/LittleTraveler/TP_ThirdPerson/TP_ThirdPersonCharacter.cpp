@@ -414,6 +414,17 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 	initGravity = GetCharacterMovement()->GravityScale;
 	InitUI();
 
+	bool hasSave = UGameplayStatics::DoesSaveGameExist("save", 0);
+	if (hasSave)
+	{
+		UGameSave* save = Cast<UGameSave>(UGameplayStatics::LoadGameFromSlot("save", 0));
+		if (save)
+		{
+			curLevel = save->GetLevelId();
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("curLevel %d"), curLevel));
+		}
+	}
+
 	euipItems.Add(EuipItem::FlourBomb);
 	if (curLevel > 1)
 	{
@@ -537,9 +548,6 @@ void ATP_ThirdPersonCharacter::TurnToForward(FVector p_Forward) {
 	temp.Normalize();
 	forward = temp.Rotation();
 	prevLength = GetCameraBoom()->TargetArmLength;
-	//UE_LOG(LogClass, Log, TEXT("This a testing statement. %s"), *forward.ToString());
-
-	// SetActorRotation(p_Forward.Rotation());
 }
 
 void ATP_ThirdPersonCharacter::Glide()
@@ -702,7 +710,8 @@ void ATP_ThirdPersonCharacter::StopPush(bool changeCollision)
 void ATP_ThirdPersonCharacter::SwitchEuip()
 {
 	curEuip = euipItems[(curEuip + 1) % euipItems.Num()];
-	GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, FString::Printf(TEXT("curEquip %d"), (int)curEuip));
+	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, FString::Printf(TEXT("curEquip %d"), (int)curEuip));
+	ChangeEuipUI((int)curEuip);
 }
 
 void ATP_ThirdPersonCharacter::UseEuip()

@@ -7,4 +7,5 @@ UGameSave::UGameSave()
 {
 	spawnPos = FVector(0, 0, 0);
 	spawnRot = FRotator(0, 0, 0);
+	levelId = 0;
 }

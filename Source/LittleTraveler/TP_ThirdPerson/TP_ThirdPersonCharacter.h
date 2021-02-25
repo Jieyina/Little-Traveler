@@ -28,6 +28,7 @@ enum EuipItem
 	BubbleWand = 2
 };
 
+
 UCLASS(config = Game)
 class ATP_ThirdPersonCharacter : public ACharacter
 {
@@ -100,17 +101,17 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	bool jumpLedge;
 	enum ClimbPoint
 	{
-		None = 0,
-		Start = 1,
-		End = 2,
-		Hit = 3
+		None,
+		Start,
+		End,
+		Hit
 	};
 	ClimbPoint climbPoint;
 	enum JumpDir
 	{
-		NotJump = 0,
-		Up = 1,
-		Forward = 2
+		NotJump,
+		Up,
+		Forward
 	};
 	JumpDir jumpDir;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -295,6 +296,8 @@ protected:
 		void InitUI();
 	UFUNCTION(BlueprintImplementableEvent)
 		void UpdateGlideUI(bool turnon);
+	UFUNCTION(BlueprintImplementableEvent)
+		void ChangeEuipUI(int newIndex);
 	UFUNCTION(BlueprintImplementableEvent)
 		void Talk(AActor* other);
 

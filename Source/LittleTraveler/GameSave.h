@@ -20,6 +20,9 @@ class LITTLETRAVELER_API UGameSave : public USaveGame
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FRotator spawnRot;
 
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		int levelId;
+
 public:
 	UGameSave();
 
@@ -27,4 +30,6 @@ public:
 	inline void SetSpawnPos(FVector pos) { spawnPos = pos; }
 	inline FRotator GetSpawnRot() { return spawnRot; }
 	inline void SetSpawnPos(FRotator rot) { spawnRot = rot; }
+	inline int GetLevelId() { return levelId; }
+	inline void SetLevelId(int newIndex) { levelId = newIndex; }
 };
