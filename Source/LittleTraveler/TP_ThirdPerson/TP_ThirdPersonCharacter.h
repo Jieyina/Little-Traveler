@@ -127,7 +127,7 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	// Rock climbing
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		AActor* RockClimbObj;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		AActor* CurRock;
 	bool canClimbRock;
 	bool canClimbJump;
