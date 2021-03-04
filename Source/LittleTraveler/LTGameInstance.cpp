@@ -6,5 +6,6 @@
 ULTGameInstance::ULTGameInstance()
 {
 	levelId = 1;
+	prevLevelId = 1;
 }
 

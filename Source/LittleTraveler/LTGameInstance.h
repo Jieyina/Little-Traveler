@@ -14,13 +14,18 @@ class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
-		UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		int levelId;
+
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		int prevLevelId;
+
 
 public:
 	ULTGameInstance();
 
 	inline int GetLevelId() { return levelId; }
 	inline void SetLevelId(int newIndex) { levelId = newIndex; }
-	
+	inline int GetPrevLevelId() { return prevLevelId; }
+	inline void SetPrevLevelId(int newIndex) { prevLevelId = newIndex; }
 };
