@@ -11,6 +11,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -26,11 +27,12 @@
 #include "../CPP_Climbable.h"
 #include "../Rock_Climbable.h"
 #include "../RockClimbTrigger_Start.h"
-#include "../Faucet.h"
-#include "../Collectable.h"
 #include "../GameSave.h"
 #include "../JumpableNode.h"
 #include "../Hook.h"
+#include "../Collectable.h"
+#include "../Faucet.h"
+#include "../LTGameInstance.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -79,8 +81,10 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	JumpEdgeTimeline = CreateDefaultSubobject<UTimelineComponent>("JumpEdgeTimeline");
 	RockClimbTimeline = CreateDefaultSubobject<UTimelineComponent>("RockClimbTimeline");
 
-	curLevel = 0;
-	curEuip = EuipItem::FlourBomb;
+	curLevel = 1;
+	playInEditor = false;
+	curEquipId = 0;
+	curEquip = EuipItem::FlourBomb;
 
 	traceDistance = 30.0f;
 
@@ -410,17 +414,40 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 		RockClimbTimeline->SetTimelineFinishedFunc(ClimbRockFinishCallback);
 	}
 
-	euipItems.Add(EuipItem::FlourBomb);
-
 	initAirContol = GetCharacterMovement()->AirControl;
 	initGravity = GetCharacterMovement()->GravityScale;
-	InitUI();
 
-	GetWorldTimerManager().SetTimer(LoadLevelIdTimer, this, &ATP_ThirdPersonCharacter::LoadLevelId, 0.5f, false);
+	euipItems.Add(EuipItem::FlourBomb);
+
+	if (!playInEditor)
+	{
+		ULTGameInstance* gameIns = Cast<ULTGameInstance>(GetGameInstance());
+		if (gameIns)
+		{
+			curLevel = gameIns->GetLevelId();
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("curLevel %d"), curLevel));
+		}
+	}
+
+	if (curLevel == 3)
+		GetMesh()->SetMaterial(0, NightShader);
+
+	InitUI();
+	if (curLevel > 2)
+	{
+		euipItems.Add(EuipItem::Hook);
+		canGlide = true;
+		UpdateGlideUI(true);
+	}
+	if (curLevel > 3)
+		euipItems.Add(EuipItem::BubbleWand);
+
+	//GetWorldTimerManager().SetTimer(LoadLevelIdTimer, this, &ATP_ThirdPersonCharacter::LoadLevelId, 0.5f, false);
 }
 
 void ATP_ThirdPersonCharacter::LoadLevelId()
 {
+
 	bool hasSave = UGameplayStatics::DoesSaveGameExist("save", 0);
 	if (hasSave)
 	{
@@ -652,11 +679,17 @@ void ATP_ThirdPersonCharacter::Interact()
 		canGlide = true;
 		UpdateGlideUI(true);
 	}
-	else if (hit.Actor->ActorHasTag("Faucet"))
+	else if (hit.Actor->ActorHasTag("Flour"))
 	{
-		AFaucet* faucet = Cast<AFaucet>(hit.Actor);
-		if (faucet)
-			faucet->Activate();
+		if (FlourBombNum == 0)
+		{
+			FlourBombNum++;
+			UpdateFlourUI(true);
+		}
+	}
+	else if (hit.Actor->ActorHasTag("Walnut"))
+	{
+		hit.Actor->Destroy();
 	}
 	else if (hit.Actor->ActorHasTag("Talk"))
 	{
@@ -670,6 +703,12 @@ void ATP_ThirdPersonCharacter::Interact()
 			AddToInventory(collectItem->GetType(), collectItem->GetName());
 			collectItem->Destroy();
 		}
+	}
+	else if (hit.Actor->ActorHasTag("Faucet"))
+	{
+		AFaucet* faucet = Cast<AFaucet>(hit.Actor);
+		if (faucet)
+			faucet->Activate();
 	}
 }
 
@@ -715,20 +754,21 @@ void ATP_ThirdPersonCharacter::StopPush(bool changeCollision)
 
 void ATP_ThirdPersonCharacter::SwitchEuip()
 {
-	curEuip = euipItems[(curEuip + 1) % euipItems.Num()];
-	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, FString::Printf(TEXT("curEquip %d"), (int)curEuip));
-	ChangeEuipUI((int)curEuip);
+	curEquipId = (curEquipId + 1) % euipItems.Num();
+	curEquip = euipItems[curEquipId];
+	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, FString::Printf(TEXT("curEquip %d"), (int)curEquip));
+	ChangeEuipUI(curEquipId);
 }
 
 void ATP_ThirdPersonCharacter::UseEuip()
 {
-	if (curEuip == EuipItem::FlourBomb)
+	if (curEquip == EuipItem::FlourBomb)
 	{
 		UseFlourBomb();
 		//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, "use flour bomb");
 		return;
 	}
-	if (curEuip == EuipItem::Hook)
+	if (curEquip == EuipItem::Hook)
 	{
 		Hook();
 		return;
@@ -912,7 +952,8 @@ void ATP_ThirdPersonCharacter::ClearTransport() {
 
 void ATP_ThirdPersonCharacter::UseFlourBomb() {
 	if (FlourBombNum > 0) {
-		UE_LOG(LogTemp, Warning, TEXT("Blocked"));
+		//UE_LOG(LogTemp, Warning, TEXT("Blocked"));
+		UpdateFlourUI(false);
 		FlourBombAudio->Play();
 		FlourBombNum--;
 		Block = true;
@@ -948,12 +989,12 @@ void ATP_ThirdPersonCharacter::Hook()
 		TArray<AActor*> ignoreActors;
 		FVector start = this->GetActorLocation();
 		bool hitResult = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), start, start, hookDis,
-			UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignoreActors, EDrawDebugTrace::ForDuration, hits, true);
+			UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ignoreActors, EDrawDebugTrace::None, hits, true);
 		if (hitResult && HookObj)
 		{
 			float minDis = 9999;
 			AActor* obj = nullptr;
-			for (FHitResult hit : hits)
+			for (const FHitResult& hit : hits)
 			{
 				FVector pos = hit.Actor->GetActorLocation();
 				float dis = UKismetMathLibrary::Vector_Distance(pos, start);

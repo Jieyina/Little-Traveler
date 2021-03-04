@@ -58,10 +58,13 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UTimelineComponent* RockClimbTimeline;
 
+	FTimerHandle LoadLevelIdTimer;
+
 	UPROPERTY()
 		TArray<TEnumAsByte<EuipItem>> euipItems;
-	EuipItem curEuip;
-	FTimerHandle LoadLevelIdTimer;
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		int curEquipId;
+	EuipItem curEquip;
 
 	UPROPERTY()
 		class APlayerStart* PlayerStart;
@@ -173,7 +176,7 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		float FlourBombRadius = 50;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		int FlourBombNum = 100;
+		int FlourBombNum = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		bool Block = false;
 	FTimerHandle FlourBombTimer;
@@ -196,8 +199,11 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	TArray<FString> craftedTools;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "BP Setting|Game")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP Setting|Game")
 		int curLevel;
+
+	UPROPERTY(EditAnywhere, Category = "BP Setting|Game")
+		bool playInEditor;
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Reference")
 		UClass* CharacterBP;
@@ -210,6 +216,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Reference")
 		UCurveFloat* ClimbRockCurve;
+
+	UPROPERTY(EditAnywhere, Category = "BP Setting|Reference")
+		UMaterialInterface* NightShader;
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Interact")
 		float traceDistance;
@@ -301,6 +310,8 @@ protected:
 		void UpdateGlideUI(bool turnon);
 	UFUNCTION(BlueprintImplementableEvent)
 		void ChangeEuipUI(int newIndex);
+	UFUNCTION(BlueprintImplementableEvent)
+		void UpdateFlourUI(bool turnon);
 	UFUNCTION(BlueprintImplementableEvent)
 		void Talk(AActor* other);
 
