@@ -40,7 +40,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	FORCEINLINE UStaticMeshComponent* GetMesh() const { return Mesh; }
-	FORCEINLINE UStaticMeshComponent* GetShadeMesh() const { return ShadeMesh; }
-
+	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return Mesh; }
+	FORCEINLINE class UStaticMeshComponent* GetShadeMesh() const { return ShadeMesh; }
 };

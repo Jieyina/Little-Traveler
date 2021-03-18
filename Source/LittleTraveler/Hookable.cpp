@@ -6,6 +6,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/SceneComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -18,16 +19,17 @@ AHookable::AHookable()
 	RootComponent = Mesh;
 	Mesh->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Block);
 
-	Collider = CreateDefaultSubobject<USphereComponent>("HookableRange");
-	Collider->SetupAttachment(RootComponent);
-	Collider->SetCollisionProfileName("OverlapPawn");
-	Collider->OnComponentBeginOverlap.AddDynamic(this, &AHookable::OnSphereBeginOverlap);
-	Collider->OnComponentEndOverlap.AddDynamic(this, &AHookable::OnSphereEndOverlap);
-
 	ShadeMesh = CreateDefaultSubobject<UStaticMeshComponent>("ShadeMesh");
 	ShadeMesh->SetupAttachment(RootComponent);
 	ShadeMesh->SetCollisionProfileName("NoCollision");
 	ShadeMesh->SetHiddenInGame(true);
+
+	Collider = CreateDefaultSubobject<USphereComponent>("HookableRange");
+	Collider->SetupAttachment(RootComponent);
+	Collider->SetSphereRadius(100);
+	Collider->SetCollisionProfileName("OverlapPawn");
+	Collider->OnComponentBeginOverlap.AddDynamic(this, &AHookable::OnSphereBeginOverlap);
+	Collider->OnComponentEndOverlap.AddDynamic(this, &AHookable::OnSphereEndOverlap);
 
 	Arrow = CreateDefaultSubobject<UArrowComponent>("Arrow");
 	Arrow->SetupAttachment(RootComponent);
