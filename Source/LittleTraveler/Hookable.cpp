@@ -24,6 +24,9 @@ AHookable::AHookable()
 	ShadeMesh->SetCollisionProfileName("NoCollision");
 	ShadeMesh->SetHiddenInGame(true);
 
+	HookPoint = CreateDefaultSubobject<USceneComponent>("HookPoint");
+	HookPoint->SetupAttachment(RootComponent);
+
 	Collider = CreateDefaultSubobject<USphereComponent>("HookableRange");
 	Collider->SetupAttachment(RootComponent);
 	Collider->SetSphereRadius(100);

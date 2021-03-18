@@ -4,6 +4,7 @@
 #include "Hook.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/ArrowComponent.h"
 #include "Components/TimelineComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "CableComponent.h"
@@ -11,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
 #include "Engine/Engine.h"
+#include "Hookable.h"
 
 
 // Sets default values
@@ -92,19 +94,19 @@ void AHook::Tick(float DeltaTime)
 
 void AHook::Launch(AActor* hookedObj, ATP_ThirdPersonCharacter* player)
 {
-	Player = player;
-	HookedObj = hookedObj;
-	startPos = Player->GetActorLocation();
-	//USceneComponent* hookPoint = Cast<USceneComponent>(HookedObj->GetComponentByClass(USceneComponent::StaticClass()));
-	//if (hookPoint)
-	endPos = HookedObj->GetRootComponent()->GetSocketLocation(FName("HookPoint"));
-	this->SetActorLocation(endPos);
-	Hook->SetWorldLocation(startPos);
-	End->AttachToComponent(Player->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget,
-		EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("None"));
-	//End->SetWorldLocation(start);
-	this->SetActorHiddenInGame(false);
-	ShootTimeline->PlayFromStart();
+	HookedObj = Cast<AHookable>(hookedObj);
+	if (HookedObj)
+	{
+		Player = player;
+		startPos = Player->GetActorLocation();
+		endPos = HookedObj->GetHookPoint()->GetComponentLocation();
+		this->SetActorLocation(endPos);
+		Hook->SetWorldLocation(startPos);
+		End->AttachToComponent(Player->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget,
+			EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("None"));
+		this->SetActorHiddenInGame(false);
+		ShootTimeline->PlayFromStart();
+	}
 }
 
 void AHook::LerpToShoot(float value)
@@ -134,10 +136,10 @@ void AHook::OnShootFinish()
 	Player->AttachToComponent(End, FAttachmentTransformRules(EAttachmentRule::KeepWorld, 
 		EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true), FName("None"));
 	desPos = endPos + FVector(0, 0, -UKismetMathLibrary::Vector_Distance(startPos, endPos));
-	if (FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetActorForwardVector()) >= 0)
-		desRot = FRotator(0, HookedObj->GetActorRotation().Yaw, 0);
+	if (FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetArrow()->GetForwardVector()) >= 0)
+		desRot = FRotator(0, HookedObj->GetArrow()->GetComponentRotation().Yaw, 0);
 	else
-		desRot = FRotator(0, HookedObj->GetActorRotation().Yaw + 180, 0);
+		desRot = FRotator(0, HookedObj->GetArrow()->GetComponentRotation().Yaw + 180, 0);
 	PullTimeline->PlayFromStart();
 }
 
@@ -164,7 +166,7 @@ void AHook::Swing(float axisVal)
 	{
 		if ((BeforeHookPoint(Player->GetActorLocation()) && axisVal < 0) || (!BeforeHookPoint(Player->GetActorLocation()) && axisVal > 0))
 			End->AddForce(UKismetMathLibrary::SignOfFloat(FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetActorForwardVector())) * 
-			axisVal * swingForce * HookedObj->GetActorForwardVector(), FName("None"), true);
+			axisVal * swingForce * HookedObj->GetArrow()->GetForwardVector(), FName("None"), true);
 	}
 }
 
@@ -182,6 +184,7 @@ void AHook::ChangeRopeLength(float axisVal)
 void AHook::Release()
 {
 	this->SetActorHiddenInGame(true);
+	Player->SetActorRotation(desRot);
 	Hook->SetRelativeLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
 	End->SetRelativeLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
 	Constraint->SetConstrainedComponents(nullptr, FName("None"), nullptr, FName("None"));
