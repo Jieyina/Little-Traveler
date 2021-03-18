@@ -1013,7 +1013,6 @@ void ATP_ThirdPersonCharacter::Hook()
 	else
 	{
 		swing = false;
-		GetCapsuleComponent()->SetWorldRotation(GetCapsuleComponent()->GetRelativeRotation());
 		GetCapsuleComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		LaunchCharacter(HookObj->GetEnd()->GetComponentVelocity() * launchRate, false, false);
 		HookObj->Release();

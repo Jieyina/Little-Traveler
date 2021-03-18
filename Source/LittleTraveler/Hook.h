@@ -40,7 +40,7 @@ class LITTLETRAVELER_API AHook : public AActor
 	UPROPERTY()
 		class ATP_ThirdPersonCharacter* Player;
 	UPROPERTY()
-		AActor* HookedObj;
+		class AHookable* HookedObj;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Hook")

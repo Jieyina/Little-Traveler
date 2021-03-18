@@ -18,6 +18,9 @@ class LITTLETRAVELER_API AHookable : public AActor
 		class UStaticMeshComponent* ShadeMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class USceneComponent* HookPoint;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class USphereComponent* Collider;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -42,4 +45,6 @@ public:
 
 	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return Mesh; }
 	FORCEINLINE class UStaticMeshComponent* GetShadeMesh() const { return ShadeMesh; }
+	FORCEINLINE class USceneComponent* GetHookPoint() const { return HookPoint; }
+	FORCEINLINE class UArrowComponent* GetArrow() const { return Arrow; }
 };
