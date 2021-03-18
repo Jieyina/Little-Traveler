@@ -124,9 +124,6 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	FTimerHandle ClimbingAudioTimer;
 	bool CanPlayClimbingAudio = true;
 
-	UPROPERTY()
-		class ALine* Line;
-
 	// Rock climbing
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		AActor* RockClimbObj;
@@ -369,7 +366,6 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE class UStaticMeshComponent* GetGlideEquip() const { return GlideEquip; }
-	FORCEINLINE class ALine* GetLine() const { return Line; }
 
 	inline void SetCanClimbRock(bool value) { canClimbRock = value; }
 

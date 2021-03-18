@@ -5,6 +5,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AHookable::AHookable()
@@ -15,6 +17,12 @@ AHookable::AHookable()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	RootComponent = Mesh;
 	Mesh->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Block);
+
+	Collider = CreateDefaultSubobject<USphereComponent>("HookableRange");
+	Collider->SetupAttachment(RootComponent);
+	Collider->SetCollisionProfileName("OverlapPawn");
+	Collider->OnComponentBeginOverlap.AddDynamic(this, &AHookable::OnSphereBeginOverlap);
+	Collider->OnComponentEndOverlap.AddDynamic(this, &AHookable::OnSphereEndOverlap);
 
 	ShadeMesh = CreateDefaultSubobject<UStaticMeshComponent>("ShadeMesh");
 	ShadeMesh->SetupAttachment(RootComponent);
@@ -36,5 +44,16 @@ void AHookable::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AHookable::OnSphereBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+		ShadeMesh->SetHiddenInGame(false);
+}
+
+void AHookable::OnSphereEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ShadeMesh->SetHiddenInGame(true);
 }
 

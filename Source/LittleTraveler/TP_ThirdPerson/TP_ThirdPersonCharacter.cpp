@@ -22,7 +22,6 @@
 //#include "UObject/ConstructorHelpers.h"
 #include "DrawDebugHelpers.h"
 
-#include "../Line.h"
 #include "../CPP_Pushable.h"
 #include "../CPP_Climbable.h"
 #include "../Rock_Climbable.h"
@@ -33,6 +32,7 @@
 #include "../Collectable.h"
 #include "../Faucet.h"
 #include "../LTGameInstance.h"
+#include "../Walnut.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATP_ThirdPersonCharacter
@@ -376,12 +376,6 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	TArray<AActor*> Actors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALine::StaticClass(), Actors);
-	if (Actors.Num() > 0)
-	{
-		Line = Cast<ALine>(Actors[0]);
-	}
-	Actors.Empty();
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), Actors);
 	if (Actors.Num() > 0)
 	{
@@ -457,8 +451,6 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 	}
 	if (curLevel > 3)
 		euipItems.Add(EuipItem::BubbleWand);
-
-	//GetWorldTimerManager().SetTimer(LoadLevelIdTimer, this, &ATP_ThirdPersonCharacter::LoadLevelId, 0.5f, false);
 }
 
 void ATP_ThirdPersonCharacter::LoadLevelId()
@@ -489,10 +481,6 @@ void ATP_ThirdPersonCharacter::LoadLevelId()
 void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//MoveToPushTimeline.TickTimeline(DeltaTime);
-	//MoveToClimbTimeline.TickTimeline(DeltaTime);
-	//JumpEdgeTimeline.TickTimeline(DeltaTime);
-	//RockClimbTimeline.TickTimeline(DeltaTime);
 	if (isTurningToForward) {
 		GetCameraBoom()->bUsePawnControlRotation = false;
 		canMove = false;
@@ -545,9 +533,6 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 		// FVector start = this->GetActorLocation() + rayStartOffset + startOffset;
 		// FRotator controlRot = GetControlRotation();
 		// FVector end = start + controlRot.Vector() * climbRayLength;
-		// if (Line)
-			// UE_LOG(LogTemp, Warning, TEXT("Some warning message"));
-			// Line->SetActorLocationAndRotation(start, controlRot);
 		// FHitResult hit;
 		// TArray<AActor*> ignoreActors;
 
@@ -705,21 +690,23 @@ void ATP_ThirdPersonCharacter::Interact()
 	}
 	else if (hit.Actor->ActorHasTag("Walnut"))
 	{
-		hit.Actor->Destroy();
+		AWalnut* walnut = Cast<AWalnut>(hit.Actor);
+		if (walnut)
+			walnut->Collect();
 	}
 	else if (hit.Actor->ActorHasTag("Talk"))
 	{
 		Talk(hit.GetActor());
 	}
-	else if (hit.Actor->ActorHasTag("Collectable"))
-	{
-		ACollectable* collectItem = Cast<ACollectable>(hit.Actor);
-		if (collectItem)
-		{
-			AddToInventory(collectItem->GetType(), collectItem->GetName());
-			collectItem->Destroy();
-		}
-	}
+	//else if (hit.Actor->ActorHasTag("Collectable"))
+	//{
+	//	ACollectable* collectItem = Cast<ACollectable>(hit.Actor);
+	//	if (collectItem)
+	//	{
+	//		AddToInventory(collectItem->GetType(), collectItem->GetName());
+	//		collectItem->Destroy();
+	//	}
+	//}
 	else if (hit.Actor->ActorHasTag("Faucet"))
 	{
 		AFaucet* faucet = Cast<AFaucet>(hit.Actor);
@@ -833,7 +820,6 @@ void ATP_ThirdPersonCharacter::Climb(bool vertical, float axisValue)
 		FVector end = start + climbDirF * 50;
 		bool hitResult = UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end,
 			UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, ignoreActors, EDrawDebugTrace::None, hit, true);
-		//bool hitResult = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_GameTraceChannel1);
 		if (hitResult && hit.Actor->ActorHasTag("Climbable"))
 		{
 			this->AddActorWorldOffset(climbDis);

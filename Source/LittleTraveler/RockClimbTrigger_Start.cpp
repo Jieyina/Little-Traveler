@@ -4,8 +4,6 @@
 #include "RockClimbTrigger_Start.h"
 #include "Components/ShapeComponent.h"
 #include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
-#include "Line.h"
-#include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -23,16 +21,15 @@ void ARockClimbTrigger_Start::OnColliderBeginOverlap(class UPrimitiveComponent* 
 		character->SetCanClimbRock(true);
 		character->TurnToForward(Forward);
 		character->SetWallPosition(WallPosition);
-		if (character->GetLine())
-			// UE_LOG(LogTemp, Warning, TEXT("Some warning message"));
-			// character->GetLine()->SetActorHiddenInGame(false);
-			// character->GetLine()->GetParticle()->Activate(true);
-			character->SetClimbingLength(CameraLength);
-			character->SetCameraShift(CameraShift);
-			character->SetPlayerOffset(PlayerOffsets);
-			character->SetCurRock(this);
-			// character->SetRayLength(RayLength);
-			// character->SetRayStartOffset(RayStartOffset);
+		// UE_LOG(LogTemp, Warning, TEXT("Some warning message"));
+		// character->GetLine()->SetActorHiddenInGame(false);
+		// character->GetLine()->GetParticle()->Activate(true);
+		character->SetClimbingLength(CameraLength);
+		character->SetCameraShift(CameraShift);
+		character->SetPlayerOffset(PlayerOffsets);
+		character->SetCurRock(this);
+		// character->SetRayLength(RayLength);
+		// character->SetRayStartOffset(RayStartOffset);
 	}
 }
 

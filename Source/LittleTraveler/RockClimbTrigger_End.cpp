@@ -4,7 +4,6 @@
 #include "RockClimbTrigger_End.h"
 #include "Components/ShapeComponent.h"
 #include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
-#include "Line.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ARockClimbTrigger_End::ARockClimbTrigger_End()
@@ -20,8 +19,6 @@ void ARockClimbTrigger_End::OnColliderBeginOverlap(class UPrimitiveComponent* Ov
 	if (character)
 	{
 		character->SetCanClimbRock(false);
-		if (character->GetLine())
-			character->GetLine()->SetActorHiddenInGame(true);
 		character->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
 	}
 }
