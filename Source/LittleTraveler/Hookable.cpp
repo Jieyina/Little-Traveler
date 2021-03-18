@@ -27,6 +27,7 @@ AHookable::AHookable()
 	ShadeMesh = CreateDefaultSubobject<UStaticMeshComponent>("ShadeMesh");
 	ShadeMesh->SetupAttachment(RootComponent);
 	ShadeMesh->SetCollisionProfileName("NoCollision");
+	ShadeMesh->SetHiddenInGame(true);
 
 	Arrow = CreateDefaultSubobject<UArrowComponent>("Arrow");
 	Arrow->SetupAttachment(RootComponent);
