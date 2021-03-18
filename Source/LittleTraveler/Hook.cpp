@@ -165,7 +165,7 @@ void AHook::Swing(float axisVal)
 	if (Hook->GetComponentLocation().Z - End->GetComponentLocation().Z > stopHeight)
 	{
 		if ((BeforeHookPoint(Player->GetActorLocation()) && axisVal < 0) || (!BeforeHookPoint(Player->GetActorLocation()) && axisVal > 0))
-			End->AddForce(UKismetMathLibrary::SignOfFloat(FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetActorForwardVector())) * 
+			End->AddForce(UKismetMathLibrary::SignOfFloat(FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetArrow()->GetForwardVector())) *
 			axisVal * swingForce * HookedObj->GetArrow()->GetForwardVector(), FName("None"), true);
 	}
 }
