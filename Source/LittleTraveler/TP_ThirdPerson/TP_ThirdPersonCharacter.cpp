@@ -698,15 +698,15 @@ void ATP_ThirdPersonCharacter::Interact()
 	{
 		Talk(hit.GetActor());
 	}
-	//else if (hit.Actor->ActorHasTag("Collectable"))
-	//{
-	//	ACollectable* collectItem = Cast<ACollectable>(hit.Actor);
-	//	if (collectItem)
-	//	{
-	//		AddToInventory(collectItem->GetType(), collectItem->GetName());
-	//		collectItem->Destroy();
-	//	}
-	//}
+	else if (hit.Actor->ActorHasTag("Collectable"))
+	{
+		ACollectable* collectItem = Cast<ACollectable>(hit.Actor);
+		if (collectItem)
+		{
+			AddToInventory(collectItem->GetType(), collectItem->GetName());
+			collectItem->Destroy();
+		}
+	}
 	else if (hit.Actor->ActorHasTag("Faucet"))
 	{
 		AFaucet* faucet = Cast<AFaucet>(hit.Actor);
@@ -1005,7 +1005,7 @@ void ATP_ThirdPersonCharacter::Hook()
 					minDis = dis;
 					obj = hit.GetActor();
 				}
-			}
+			}		
 			shooting = true;
 			HookObj->Launch(obj, this);
 		}

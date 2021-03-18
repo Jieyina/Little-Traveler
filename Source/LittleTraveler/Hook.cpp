@@ -95,7 +95,9 @@ void AHook::Launch(AActor* hookedObj, ATP_ThirdPersonCharacter* player)
 	Player = player;
 	HookedObj = hookedObj;
 	startPos = Player->GetActorLocation();
-	endPos = HookedObj->GetActorLocation();
+	//USceneComponent* hookPoint = Cast<USceneComponent>(HookedObj->GetComponentByClass(USceneComponent::StaticClass()));
+	//if (hookPoint)
+	endPos = HookedObj->GetRootComponent()->GetSocketLocation(FName("HookPoint"));
 	this->SetActorLocation(endPos);
 	Hook->SetWorldLocation(startPos);
 	End->AttachToComponent(Player->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget,
