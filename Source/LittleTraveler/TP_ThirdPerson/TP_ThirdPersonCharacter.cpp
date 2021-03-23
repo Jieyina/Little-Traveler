@@ -688,6 +688,7 @@ void ATP_ThirdPersonCharacter::Interact()
 	{
 		if (FlourBombNum == 0)
 		{
+			CollectAudio->Play();
 			FlourBombNum++;
 			UpdateFlourUI(true);
 		}
@@ -695,8 +696,10 @@ void ATP_ThirdPersonCharacter::Interact()
 	else if (hit.Actor->ActorHasTag("Walnut"))
 	{
 		AWalnut* walnut = Cast<AWalnut>(hit.Actor);
-		if (walnut)
+		if (walnut) {
+			CollectAudio->Play();
 			walnut->Collect();
+		}
 	}
 	else if (hit.Actor->ActorHasTag("Talk"))
 	{
