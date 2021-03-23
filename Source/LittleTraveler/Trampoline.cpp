@@ -19,7 +19,7 @@ void ATrampoline::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 	if (Cast<ATP_ThirdPersonCharacter>(OtherActor)) {
 		ATP_ThirdPersonCharacter* character = Cast<ATP_ThirdPersonCharacter>(OtherActor);
 		FVector cur_vel = character->GetVelocity();
-		FVector bounce_vel(cur_vel.X, cur_vel.Y, -cur_vel.Z * multiple);
+		FVector bounce_vel(0.5f * cur_vel.X, 0.5f * cur_vel.Y, -cur_vel.Z * multiple);
 		character->LaunchCharacter(bounce_vel, true, true);
 	}
 }
