@@ -91,6 +91,8 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	float initGravity;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		class UAudioComponent* GlidingAudio;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		class UAudioComponent* RipPaperAudio;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool climbing;
@@ -192,6 +194,9 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		class UAudioComponent* ShootHookAudio;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		class UAudioComponent* CollectAudio;
 	TMap<FString, int32> resources;
 	TMap<FString, int32> questItems;
 	TMap<FString, int32> treasures;

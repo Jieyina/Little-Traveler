@@ -133,6 +133,9 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	FlourBombAudio = CreateDefaultSubobject<UAudioComponent>("FlourBombAudio");
 	GlidingAudio = CreateDefaultSubobject<UAudioComponent>("GlidingAudio");
 	ClimbingAudio = CreateDefaultSubobject<UAudioComponent>("ClimbingAudio");
+	ShootHookAudio = CreateDefaultSubobject<UAudioComponent>("ShootHookAudio");
+	CollectAudio = CreateDefaultSubobject<UAudioComponent>("CollectAudio");
+	RipPaperAudio = CreateDefaultSubobject<UAudioComponent>("RipPaperAudio");
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -677,6 +680,7 @@ void ATP_ThirdPersonCharacter::Interact()
 	}
 	else if (hit.Actor->ActorHasTag("Paper"))
 	{
+		RipPaperAudio->Play();
 		canGlide = true;
 		UpdateGlideUI(true);
 	}
@@ -703,6 +707,7 @@ void ATP_ThirdPersonCharacter::Interact()
 		ACollectable* collectItem = Cast<ACollectable>(hit.Actor);
 		if (collectItem)
 		{
+			CollectAudio->Play();
 			AddToInventory(collectItem->GetType(), collectItem->GetName());
 			collectItem->Destroy();
 		}
@@ -1008,6 +1013,7 @@ void ATP_ThirdPersonCharacter::Hook()
 			}		
 			shooting = true;
 			HookObj->Launch(obj, this);
+			ShootHookAudio->Play();
 		}
 	}
 	else
