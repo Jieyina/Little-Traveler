@@ -189,6 +189,8 @@ class ATP_ThirdPersonCharacter : public ACharacter
 		bool pulled;
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool swing;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		class UAudioComponent* ShootHookAudio;
 
 	TMap<FString, int32> resources;
 	TMap<FString, int32> questItems;
