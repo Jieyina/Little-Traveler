@@ -86,6 +86,9 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	curEquipId = 0;
 	curEquip = EuipItem::FlourBomb;
 
+	hubWalkSpeed = 20.0f;
+	hubJumpSpeed = 100.0f;
+
 	traceDistance = 30.0f;
 
 	jumping = false;
@@ -431,6 +434,12 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 			curLevel = gameIns->GetLevelId();
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("curLevel %d"), curLevel));
 		}
+	}
+
+	if (curLevel == 0)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = hubWalkSpeed;
+		GetCharacterMovement()->JumpZVelocity = hubJumpSpeed;
 	}
 
 	if (curLevel == 3)

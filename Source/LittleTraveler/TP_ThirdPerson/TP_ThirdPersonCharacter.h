@@ -58,8 +58,6 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UTimelineComponent* RockClimbTimeline;
 
-	FTimerHandle LoadLevelIdTimer;
-
 	UPROPERTY()
 		TArray<TEnumAsByte<EuipItem>> euipItems;
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -194,7 +192,6 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		class UAudioComponent* ShootHookAudio;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		class UAudioComponent* CollectAudio;
 	TMap<FString, int32> resources;
@@ -208,6 +205,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Game")
 		bool playInEditor;
+
+	UPROPERTY(EditAnywhere, Category = "BP Setting|Movement")
+		float hubWalkSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "BP Setting|Movement")
+		float hubJumpSpeed;
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Reference")
 		UClass* CharacterBP;

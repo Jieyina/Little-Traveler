@@ -17,7 +17,7 @@ class LITTLETRAVELER_API ATrampoline : public AActor
 	class USkeletalMeshComponent* SkeletalMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		class USkeletalMeshComponent* ShadeMesh;
+		class USkeletalMeshComponent* Shade;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class USphereComponent* Collider;
