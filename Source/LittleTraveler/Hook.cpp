@@ -101,6 +101,7 @@ void AHook::Launch(AActor* hookedObj, ATP_ThirdPersonCharacter* player)
 		startPos = Player->GetActorLocation();
 		endPos = HookedObj->GetHookPoint()->GetComponentLocation();
 		this->SetActorLocation(endPos);
+		this->SetActorRotation(HookedObj->GetArrow()->GetComponentRotation());
 		Hook->SetWorldLocation(startPos);
 		End->AttachToComponent(Player->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget,
 			EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("None"));
@@ -126,20 +127,20 @@ void AHook::OnShootFinish()
 	Player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
 	Player->SetPulled(true);
 	End->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	startPos = End->GetComponentLocation();
-	startRot = End->GetComponentRotation();
 	End->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(startPos, endPos));
 	if (BeforeHookPoint(startPos))
 		End->AddLocalRotation(FRotator(-90, 0, 0));
 	else
 		End->AddLocalRotation(FRotator(90, 180, 0));
+	startPos = End->GetComponentLocation();
+	startRot = End->GetComponentRotation();
 	Player->AttachToComponent(End, FAttachmentTransformRules(EAttachmentRule::KeepWorld, 
 		EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true), FName("None"));
 	desPos = endPos + FVector(0, 0, -UKismetMathLibrary::Vector_Distance(startPos, endPos));
 	if (FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetArrow()->GetForwardVector()) >= 0)
 		desRot = FRotator(0, HookedObj->GetArrow()->GetComponentRotation().Yaw, 0);
 	else
-		desRot = FRotator(0, HookedObj->GetArrow()->GetComponentRotation().Yaw + 180, 0);
+		desRot = FRotator(0, 180 + HookedObj->GetArrow()->GetComponentRotation().Yaw, 0);
 	PullTimeline->PlayFromStart();
 }
 
@@ -153,19 +154,18 @@ void AHook::OnPullFinish()
 {
 	Player->SetPulled(false);
 	End->SetSimulatePhysics(true);
+	End->SetPhysicsLinearVelocity(FVector(0, 0, 0));
 	Constraint->SetConstrainedComponents(Hook, FName("None"), End, FName("None"));
 	Player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	Player->SetSwing(true);
-	End->SetPhysicsLinearVelocity(FVector(0, 0, 0));
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, End->GetComponentVelocity().ToString());
 }
 
 void AHook::Swing(float axisVal)
 {
 	if (Hook->GetComponentLocation().Z - End->GetComponentLocation().Z > stopHeight)
 	{
-		if ((BeforeHookPoint(Player->GetActorLocation()) && axisVal < 0) || (!BeforeHookPoint(Player->GetActorLocation()) && axisVal > 0))
-			End->AddForce(UKismetMathLibrary::SignOfFloat(FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetArrow()->GetForwardVector())) *
+		//if ((BeforeHookPoint(Player->GetActorLocation()) && axisVal < 0) || (!BeforeHookPoint(Player->GetActorLocation()) && axisVal > 0))
+		End->AddForce(UKismetMathLibrary::SignOfFloat(FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetArrow()->GetForwardVector())) *
 			axisVal * swingForce * HookedObj->GetArrow()->GetForwardVector(), FName("None"), true);
 	}
 }
@@ -181,10 +181,13 @@ void AHook::ChangeRopeLength(float axisVal)
 	Constraint->SetConstrainedComponents(Hook, FName("None"), End, FName("None"));
 }
 
-void AHook::Release()
+void AHook::Release(bool destroyPlayer)
 {
+	if (destroyPlayer)
+		Player = nullptr;
+	else
+		Player->SetActorRotation(desRot);
 	this->SetActorHiddenInGame(true);
-	Player->SetActorRotation(desRot);
 	Hook->SetRelativeLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
 	End->SetRelativeLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
 	Constraint->SetConstrainedComponents(nullptr, FName("None"), nullptr, FName("None"));

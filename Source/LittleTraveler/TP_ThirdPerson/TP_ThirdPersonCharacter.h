@@ -239,6 +239,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Hook")
 		float launchRate;
 
+	UPROPERTY(EditAnywhere, Category = "BP Setting|Hook")
+		float launchZSpeed;
+
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Craft")
 		TArray<FCraftItem> CraftItems;
 
@@ -293,7 +296,6 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
-	void LoadLevelId();
 	void Interact();
 	void SwitchEuip();
 	void UseEuip();
@@ -319,6 +321,8 @@ protected:
 		void ChangeEuipUI(int newIndex);
 	UFUNCTION(BlueprintImplementableEvent)
 		void UpdateFlourUI(bool turnon);
+	UFUNCTION(BlueprintImplementableEvent)
+		void ClearUI();
 	UFUNCTION(BlueprintImplementableEvent)
 		void Talk(AActor* other);
 
@@ -361,6 +365,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Landed(const FHitResult& Hit) override;
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	void StartPush(float friction, FVector direction, USceneComponent* start);
 	void StopPush(bool changeCollision = true);

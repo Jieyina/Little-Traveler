@@ -87,7 +87,7 @@ public:
 	void Launch(AActor* hookedObj, ATP_ThirdPersonCharacter* player);
 	void Swing(float axisVal);
 	void ChangeRopeLength(float axisVal);
-	void Release();
+	void Release(bool destroyPlayer = false);
 
 	FORCEINLINE class UStaticMeshComponent* GetHook() const { return Hook; }
 	FORCEINLINE class UStaticMeshComponent* GetEnd() const { return End; }

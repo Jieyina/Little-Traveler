@@ -128,6 +128,7 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	swing = false;
 	hookDis = 100.0f;
 	launchRate = 1.5f;
+	launchZSpeed = 200.0f;
 
 	// Initialize audio component
 	FlourBombAudio = CreateDefaultSubobject<UAudioComponent>("FlourBombAudio");
@@ -354,16 +355,6 @@ void ATP_ThirdPersonCharacter::MoveRight(float Value)
 				
 			return;
 		}
-		//if (swing && Value != 0.0f)
-		//{
-		//	FVector hookProj = UKismetMathLibrary::ProjectVectorOnToPlane(HookObj->GetEnd()->GetForwardVector(), FVector(0, 0, 1));
-		//	FVector camR = UKismetMathLibrary::GetRightVector(FRotator(0, Controller->GetControlRotation().Yaw, 0));
-		//	float angle = UKismetMathLibrary::SignOfFloat(hookProj.X * camR.Y - camR.X * hookProj.Y) *
-		//		UKismetMathLibrary::DegAcos(UKismetMathLibrary::Dot_VectorVector(hookProj, camR));
-		//	GetCapsuleComponent()->SetRelativeRotation(FRotator(0, angle, 0));
-		//	HookObj->Swing(camR * Value);
-		//	return;
-		//}
 		if (Value != 0.0f)
 		{
 			const FRotator Rotation = Controller->GetControlRotation();
@@ -452,32 +443,8 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 		canGlide = true;
 		UpdateGlideUI(true);
 	}
-	if (curLevel > 3)
-		euipItems.Add(EuipItem::BubbleWand);
-}
-
-void ATP_ThirdPersonCharacter::LoadLevelId()
-{
-
-	bool hasSave = UGameplayStatics::DoesSaveGameExist("save", 0);
-	if (hasSave)
-	{
-		UGameSave* save = Cast<UGameSave>(UGameplayStatics::LoadGameFromSlot("save", 0));
-		if (save)
-		{
-			curLevel = save->GetLevelId();
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("curLevel %d"), curLevel));
-		}
-	}
-
-	if (curLevel > 1)
-	{
-		euipItems.Add(EuipItem::Hook);
-		canGlide = true;
-		UpdateGlideUI(true);
-	}
-	if (curLevel > 2)
-		euipItems.Add(EuipItem::BubbleWand);
+	//if (curLevel > 3)
+	//	euipItems.Add(EuipItem::BubbleWand);
 }
 
 // Called every frame
@@ -577,6 +544,16 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 		canMove = true;
 		initializeClimbing = true;
 	}
+}
+
+void ATP_ThirdPersonCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (EndPlayReason == EEndPlayReason::Destroyed && pulled || swing)
+		HookObj->Release(true);
+
+	ClearUI();
 }
 
 void ATP_ThirdPersonCharacter::TurnToForward(FVector p_Forward) {
@@ -1023,8 +1000,10 @@ void ATP_ThirdPersonCharacter::Hook()
 	{
 		swing = false;
 		GetCapsuleComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		LaunchCharacter(HookObj->GetEnd()->GetComponentVelocity() * launchRate, false, false);
+		FVector launchVelo = HookObj->GetEnd()->GetComponentVelocity() * launchRate;
+		launchVelo.Z = launchZSpeed;
 		HookObj->Release();
+		LaunchCharacter(launchVelo, false, false);
 	}
 }
 
