@@ -20,6 +20,9 @@ class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		int prevLevelId;
 
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		bool playingMovie;
+
 
 public:
 	ULTGameInstance();

@@ -5,7 +5,8 @@
 
 ULTGameInstance::ULTGameInstance()
 {
-	levelId = 1;
-	prevLevelId = 1;
+	levelId = -1;
+	prevLevelId = -1;
+	playingMovie = false;
 }
 
