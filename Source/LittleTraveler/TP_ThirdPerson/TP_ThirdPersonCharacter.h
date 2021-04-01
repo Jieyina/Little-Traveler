@@ -156,6 +156,8 @@ class ATP_ThirdPersonCharacter : public ACharacter
 
 	// Normal jumpable node
 	bool canJumpNode = false;
+	bool initializeNormalJump = true;
+	bool isSettingUpCamera = false;
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool isJumpingNode = false;
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -406,4 +408,7 @@ public:
 
 	void SetUpTransport(ATransport* p_Transport);
 	void ClearTransport();
+
+	void SetUpNormalJump(FVector forward);
+	void ResetAfterNormalJump();
 };

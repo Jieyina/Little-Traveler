@@ -478,6 +478,26 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 
 		return;
 	}
+
+	if (isSettingUpCamera) {
+		GetCameraBoom()->bUsePawnControlRotation = false;
+		canMove = false;
+		FRotator delta = GetCameraBoom()->GetComponentRotation() - forward;
+		if (FMath::Abs(delta.Pitch) < 0.1f && FMath::Abs(delta.Roll) < 0.1f && FMath::Abs(delta.Yaw) < 0.1f) {
+			UE_LOG(LogTemp, Warning, TEXT("OVER"));
+			isSettingUpCamera = false;
+		}
+		// UE_LOG(LogTemp, Warning, TEXT("SETTING %s"), *(GetActorRotation().ToString()));
+
+		if (FMath::Abs(GetCameraBoom()->TargetArmLength - climbingLength) > 1.f) {
+			float length = FMath::Lerp(GetCameraBoom()->TargetArmLength, climbingLength, 0.05f);
+			GetCameraBoom()->TargetArmLength = length;
+		}
+		// UE_LOG(LogTemp, Warning, TEXT("SETTING %s"), *(GetCameraBoom()->GetComponentRotation().ToString()));
+		GetCameraBoom()->SetWorldRotation(FMath::Lerp(FQuat(GetCameraBoom()->GetComponentRotation()), FQuat(forward), 0.05f));
+		return;
+	}
+
 	if (isJumpingNode) {
 		FVector curLocation = GetActorLocation();
 		SetActorLocation(FMath::Lerp(curLocation, JumpableNodePosition, 0.5f));
@@ -571,6 +591,21 @@ void ATP_ThirdPersonCharacter::TurnToForward(FVector p_Forward) {
 	temp.Normalize();
 	forward = temp.Rotation();
 	prevLength = GetCameraBoom()->TargetArmLength;
+}
+
+void ATP_ThirdPersonCharacter::SetUpNormalJump(FVector p_Forward) {
+	FVector temp = p_Forward;
+	isSettingUpCamera = true;
+	temp.Normalize();
+	forward = temp.Rotation();
+	prevLength = GetCameraBoom()->TargetArmLength;
+}
+
+void ATP_ThirdPersonCharacter::ResetAfterNormalJump() {
+	GetCameraBoom()->TargetArmLength = prevLength;
+	GetCameraBoom()->bUsePawnControlRotation = true;
+	canMove = true;
+	isSettingUpCamera = false;
 }
 
 void ATP_ThirdPersonCharacter::Glide()

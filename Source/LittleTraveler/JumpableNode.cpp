@@ -50,13 +50,17 @@ void AJumpableNode::OnColliderBeginOverlap(class UPrimitiveComponent* Overlapped
 		Mesh_Outline->SetHiddenInGame(true);
 
 		if (NextNode) {
+			if (IsStart) {
+				character->SetClimbingLength(CameraLength);
+				character->SetUpNormalJump(FVector(1, 0, 0));
+			}
 			UE_LOG(LogClass, Log, TEXT("This a testing statement."));
 			NextNode->Mesh_Outline->SetHiddenInGame(false);
 			character->SetCanJumpNode(true);
-			
 		}
 		else {
 			character->SetCanJumpNode(false);
+			character->ResetAfterNormalJump();
 			// character->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
 		}
 

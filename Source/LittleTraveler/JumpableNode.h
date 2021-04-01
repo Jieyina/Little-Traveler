@@ -19,6 +19,12 @@ public:
 		AJumpableNode* NextNode = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool IsStart = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float CameraLength = 40;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector PlayerOffsets = FVector(0.0f, -4.0f, 3.0f);
 
 
