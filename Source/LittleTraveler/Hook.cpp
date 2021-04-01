@@ -218,7 +218,8 @@ void AHook::Release(bool destroyPlayer)
 		Player = nullptr;
 	else
 	{
-		FVector launchVelo = HookedObj->GetArrow()->GetForwardVector() * launchSpeed;
+		FVector launchVelo = UKismetMathLibrary::SignOfFloat(FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetArrow()->GetForwardVector()))
+			* HookedObj->GetArrow()->GetForwardVector() * launchSpeed;
 		launchVelo.Z = launchSpeed;
 		Player->SetActorRotation(desRot);
 		Player->LaunchCharacter(launchVelo, false, true);
