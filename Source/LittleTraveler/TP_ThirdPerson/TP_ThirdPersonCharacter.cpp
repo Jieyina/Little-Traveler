@@ -500,7 +500,7 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 
 	if (isJumpingNode) {
 		FVector curLocation = GetActorLocation();
-		SetActorLocation(FMath::Lerp(curLocation, JumpableNodePosition, 0.5f));
+		SetActorLocation(FMath::Lerp(curLocation, JumpableNodePosition, 0.2f));
 		FVector delta = GetActorLocation() - JumpableNodePosition;
 		if (FMath::Abs(delta.X) < 0.1f && FMath::Abs(delta.Y) < 0.1f && FMath::Abs(delta.Z) < 0.1f) {
 			// UE_LOG(LogTemp, Warning, TEXT("OVER"));
