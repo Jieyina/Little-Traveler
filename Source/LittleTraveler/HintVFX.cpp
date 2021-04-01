@@ -5,6 +5,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
 
@@ -23,13 +24,13 @@ AHintVFX::AHintVFX()
 	TriggerZone->OnComponentBeginOverlap.AddDynamic(this, &AHintVFX::OnBoxBeginOverlap);
 	TriggerZone->OnComponentEndOverlap.AddDynamic(this, &AHintVFX::OnBoxEndOverlap);
 
-	Arrow = CreateDefaultSubobject<UArrowComponent>("Arrow");
-	Arrow->SetupAttachment(RootComponent);
-
 	Particle = CreateDefaultSubobject<UParticleSystemComponent>("Particle");
 	Particle->SetupAttachment(RootComponent);
 	Particle->SetAutoActivate(false);
 
+	Text = CreateDefaultSubobject<UTextRenderComponent>("Text");
+	Text->SetupAttachment(RootComponent);
+	Text->SetHiddenInGame(true);
 }
 
 // Called when the game starts or when spawned
@@ -49,11 +50,15 @@ void AHintVFX::Tick(float DeltaTime)
 void AHintVFX::OnBoxBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (Cast<ATP_ThirdPersonCharacter>(OtherActor))
+	{
 		Particle->SetActive(true);
+		Text->SetHiddenInGame(false);
+	}
 }
 
 void AHintVFX::OnBoxEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	Particle->SetActive(false);
+	Text->SetHiddenInGame(true);
 }
 

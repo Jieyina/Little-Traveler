@@ -18,10 +18,10 @@ class LITTLETRAVELER_API AHintVFX : public AActor
 		class UBoxComponent* TriggerZone;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		class UArrowComponent* Arrow;
+		class UParticleSystemComponent* Particle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		class UParticleSystemComponent* Particle;
+		class UTextRenderComponent* Text;
 
 public:	
 	// Sets default values for this actor's properties
