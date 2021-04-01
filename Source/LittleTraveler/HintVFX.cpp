@@ -24,13 +24,13 @@ AHintVFX::AHintVFX()
 	TriggerZone->OnComponentBeginOverlap.AddDynamic(this, &AHintVFX::OnBoxBeginOverlap);
 	TriggerZone->OnComponentEndOverlap.AddDynamic(this, &AHintVFX::OnBoxEndOverlap);
 
-	Particle = CreateDefaultSubobject<UParticleSystemComponent>("Particle");
-	Particle->SetupAttachment(RootComponent);
-	Particle->SetAutoActivate(false);
-
 	Text = CreateDefaultSubobject<UTextRenderComponent>("Text");
 	Text->SetupAttachment(RootComponent);
 	Text->SetHiddenInGame(true);
+
+	Particle = CreateDefaultSubobject<UParticleSystemComponent>("Particle");
+	Particle->SetupAttachment(Text);
+	Particle->SetAutoActivate(false);
 }
 
 // Called when the game starts or when spawned
