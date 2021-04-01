@@ -15,6 +15,8 @@ AHookable::AHookable()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	swingLength = 50.0f;
+
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	RootComponent = Mesh;
 	Mesh->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Block);

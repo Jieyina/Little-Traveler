@@ -42,6 +42,11 @@ class LITTLETRAVELER_API AHook : public AActor
 	UPROPERTY()
 		class AHookable* HookedObj;
 
+	bool swinging;
+	bool flip;
+	float swingSpeed;
+	float swingCountDown;
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "Hook")
 		float stopHeight;
@@ -60,6 +65,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Hook")
 		UCurveFloat* PullCurve;
+
+	UPROPERTY(EditAnywhere, Category = "Hook")
+		float swingAngle;
+
+	UPROPERTY(EditAnywhere, Category = "Hook")
+		float swingPeriod;
+
+	UPROPERTY(EditAnywhere, Category = "Hook")
+		float launchSpeed;
 	
 public:	
 	// Sets default values for this actor's properties

@@ -25,6 +25,10 @@ class LITTLETRAVELER_API AHookable : public AActor
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UArrowComponent* Arrow;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "Hook")
+		float swingLength;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -43,6 +47,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FORCEINLINE float GetSwingLength() { return swingLength; }
 	FORCEINLINE class UStaticMeshComponent* GetMesh() const { return Mesh; }
 	FORCEINLINE class UStaticMeshComponent* GetShadeMesh() const { return ShadeMesh; }
 	FORCEINLINE class USceneComponent* GetHookPoint() const { return HookPoint; }

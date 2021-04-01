@@ -205,9 +205,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP Setting|Game")
 		int curLevel;
 
-	UPROPERTY(EditAnywhere, Category = "BP Setting|Game")
-		bool playInEditor;
-
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Movement")
 		float hubWalkSpeed;
 

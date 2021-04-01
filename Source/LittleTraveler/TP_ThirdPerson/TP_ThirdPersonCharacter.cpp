@@ -82,7 +82,6 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	RockClimbTimeline = CreateDefaultSubobject<UTimelineComponent>("RockClimbTimeline");
 
 	curLevel = 1;
-	playInEditor = false;
 	curEquipId = 0;
 	curEquip = EuipItem::FlourBomb;
 
@@ -162,7 +161,7 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAxis("TurnRate", this, &ATP_ThirdPersonCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &ATP_ThirdPersonCharacter::LookUp);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ATP_ThirdPersonCharacter::LookUpAtRate);
-	PlayerInputComponent->BindAxis("AdjustRope", this, &ATP_ThirdPersonCharacter::AdjustRope);
+	//PlayerInputComponent->BindAxis("AdjustRope", this, &ATP_ThirdPersonCharacter::AdjustRope);
 
 	// handle touch devices
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ATP_ThirdPersonCharacter::TouchStarted);
@@ -174,9 +173,6 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATP_ThirdPersonCharacter::Interact);
 	PlayerInputComponent->BindAction("SwitchEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::SwitchEuip);
 	PlayerInputComponent->BindAction("UseEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseEuip);
-	//PlayerInputComponent->BindAction("Glide", IE_Pressed, this, &ATP_ThirdPersonCharacter::Glide);
-	//PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseFlourBomb);
-	//PlayerInputComponent->BindAction("Hook", IE_Pressed, this, &ATP_ThirdPersonCharacter::Hook);
 }
 
 
@@ -296,7 +292,7 @@ void ATP_ThirdPersonCharacter::MoveForward(float Value)
 	}
 	if (!isOnNode && canMove && Controller != NULL)
 	{
-		if (hangRock || pulled)
+		if (hangRock || pulled || swing)
 			return;
 		if (pushing)
 		{
@@ -312,17 +308,11 @@ void ATP_ThirdPersonCharacter::MoveForward(float Value)
 			}
 			return;
 		}
-		if (swing && Value != 0.0f)
-		{
-			//FVector hookProj = UKismetMathLibrary::ProjectVectorOnToPlane(HookObj->GetEnd()->GetForwardVector(), FVector(0, 0, 1));
-			//FVector camFw = UKismetMathLibrary::GetForwardVector(FRotator(0, Controller->GetControlRotation().Yaw, 0));
-			//float angle = UKismetMathLibrary::SignOfFloat(hookProj.X * camFw.Y - camFw.X * hookProj.Y) * 
-			//	UKismetMathLibrary::DegAcos(UKismetMathLibrary::Dot_VectorVector(hookProj, camFw));
-			//GetCapsuleComponent()->SetRelativeRotation(FRotator(0, angle, 0));
-			//HookObj->Swing(camFw * Value);
-			HookObj->Swing(Value);
-			return;
-		}
+		//if (swing && Value != 0.0f)
+		//{
+		//	HookObj->Swing(Value);
+		//	return;
+		//}
 		if (Value != 0.0f)
 		{
 			const FRotator Rotation = Controller->GetControlRotation();
@@ -426,14 +416,11 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 
 	euipItems.Add(EuipItem::FlourBomb);
 
-	if (!playInEditor)
+	ULTGameInstance* gameIns = Cast<ULTGameInstance>(GetGameInstance());
+	if (gameIns)
 	{
-		ULTGameInstance* gameIns = Cast<ULTGameInstance>(GetGameInstance());
-		if (gameIns)
-		{
-			curLevel = gameIns->GetLevelId();
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("curLevel %d"), curLevel));
-		}
+		curLevel = gameIns->GetLevelId();
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("curLevel %d"), curLevel));
 	}
 
 	if (curLevel == 0)
@@ -1044,10 +1031,11 @@ void ATP_ThirdPersonCharacter::Hook()
 	{
 		swing = false;
 		GetCapsuleComponent()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		FVector launchVelo = HookObj->GetEnd()->GetComponentVelocity() * launchRate;
-		launchVelo.Z = launchZSpeed;
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		//FVector launchVelo = HookObj->GetEnd()->GetComponentVelocity() * launchRate;
+		//launchVelo.Z = launchZSpeed;
 		HookObj->Release();
-		LaunchCharacter(launchVelo, false, false);
+		//LaunchCharacter(launchVelo, false, false);
 	}
 }
 
