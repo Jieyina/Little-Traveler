@@ -67,6 +67,9 @@ protected:
 		UCurveFloat* PullCurve;
 
 	UPROPERTY(EditAnywhere, Category = "Hook")
+		float handOffset;
+
+	UPROPERTY(EditAnywhere, Category = "Hook")
 		float swingAngle;
 
 	UPROPERTY(EditAnywhere, Category = "Hook")

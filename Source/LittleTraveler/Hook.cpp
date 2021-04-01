@@ -6,10 +6,10 @@
 #include "Components/SceneComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "CableComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Kismet/GameplayStatics.h"
 #include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
 #include "Engine/Engine.h"
 #include "Hookable.h"
@@ -60,6 +60,7 @@ AHook::AHook()
 	swingAngle = 45.0f;
 	swingPeriod = 0.5f;
 	launchSpeed = 200.0f;
+	handOffset = 100.0f;
 }
 
 // Called when the game starts or when spawned
@@ -122,13 +123,13 @@ void AHook::Launch(AActor* hookedObj, ATP_ThirdPersonCharacter* player)
 	if (HookedObj)
 	{
 		Player = player;
-		startPos = Player->GetActorLocation();
+		startPos = Player->GetMesh()->GetSocketLocation(FName("Hand_R"));
 		endPos = HookedObj->GetHookPoint()->GetComponentLocation();
 		this->SetActorLocation(endPos);
 		this->SetActorRotation(HookedObj->GetArrow()->GetComponentRotation());
 		Hook->SetWorldLocation(startPos);
 		End->AttachToComponent(Player->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget,
-			EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("None"));
+			EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true), FName("Hand_R"));
 		this->SetActorHiddenInGame(false);
 		ShootTimeline->PlayFromStart();
 	}
@@ -160,8 +161,9 @@ void AHook::OnShootFinish()
 		End->AddLocalRotation(FRotator(90, 180, 0));
 	startPos = End->GetComponentLocation();
 	startRot = End->GetComponentRotation();
-	Player->AttachToComponent(End, FAttachmentTransformRules(EAttachmentRule::KeepWorld, 
+	Player->AttachToComponent(End, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, 
 		EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true), FName("None"));
+	Player->AddActorLocalOffset(FVector(0, 0, -handOffset));
 	//desPos = endPos + FVector(0, 0, -UKismetMathLibrary::Vector_Distance(startPos, endPos));
 	desPos = endPos + FVector(0, 0, HookedObj->GetSwingLength() * -1);
 	if (FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetArrow()->GetForwardVector()) >= 0)
