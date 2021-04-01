@@ -292,7 +292,7 @@ void ATP_ThirdPersonCharacter::MoveForward(float Value)
 	}
 	if (!isOnNode && canMove && Controller != NULL)
 	{
-		if (hangRock || pulled || swing)
+		if (hangRock || pulled || swing || jumpLedge)
 			return;
 		if (pushing)
 		{
@@ -337,7 +337,7 @@ void ATP_ThirdPersonCharacter::MoveRight(float Value)
 	}
 	if (!isOnNode && canMove && Controller != NULL)
 	{
-		if (hangRock || pushing || pulled || swing)
+		if (hangRock || pushing || pulled || swing || jumpLedge)
 			return;
 		if (climbing)
 		{
@@ -817,8 +817,9 @@ void ATP_ThirdPersonCharacter::Climb(bool vertical, float axisValue)
 		}
 		else
 		{
-			if (axisValue > 0 && climbLedge && !jumpLedge)
+			if (axisValue > 0 && climbLedge)
 			{
+				climbing = false;
 				jumpLedge = true;
 				this->SetActorRotation(FRotator(0, climbRot.Yaw, 0));
 				prevPos = this->GetActorLocation();
@@ -939,7 +940,6 @@ void ATP_ThirdPersonCharacter::OnLerpToJumpFinish()
 		jumpDir = JumpDir::NotJump;
 		GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
 		jumpLedge = false;
-		climbing = false;
 	}
 }
 

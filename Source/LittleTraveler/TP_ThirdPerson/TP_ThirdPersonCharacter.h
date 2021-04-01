@@ -94,6 +94,8 @@ class ATP_ThirdPersonCharacter : public ACharacter
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		bool climbing;
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		bool jumpLedge;
 
 	FVector climbDirV;
 	FVector climbDirH;
@@ -103,7 +105,6 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	FVector climbHit;
 	FRotator climbRot;
 	bool climbLedge;
-	bool jumpLedge;
 	enum ClimbPoint
 	{
 		None,
