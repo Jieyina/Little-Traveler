@@ -1095,3 +1095,12 @@ void ATP_ThirdPersonCharacter::Craft(FString name)
 		return;
 	}
 }
+
+void ATP_ThirdPersonCharacter::ResetRockclimbing() {
+	canClimbRock = false;
+	canClimbJump = false;
+	rockClimbing = false;
+	hangRock = false;
+	RockClimbObj = nullptr;
+	CurRock = nullptr;
+}

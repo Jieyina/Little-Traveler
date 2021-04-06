@@ -28,6 +28,7 @@ void ARockClimbTrigger_Start::OnColliderBeginOverlap(class UPrimitiveComponent* 
 		character->SetCameraShift(CameraShift);
 		character->SetPlayerOffset(PlayerOffsets);
 		character->SetCurRock(this);
+		character->SetClimbRockEnd(false);
 		// character->SetRayLength(RayLength);
 		// character->SetRayStartOffset(RayStartOffset);
 	}

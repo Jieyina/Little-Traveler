@@ -383,7 +383,9 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE class UStaticMeshComponent* GetGlideEquip() const { return GlideEquip; }
 
+	void ResetRockclimbing();
 	inline void SetCanClimbRock(bool value) { canClimbRock = value; }
+	inline void SetClimbRockEnd(bool value) { rockClimbEnd = value; }
 
 	inline void SetWallPosition(FVector p_WallPosition) {
 		wallPosition = p_WallPosition;

@@ -18,7 +18,7 @@ void ARockClimbTrigger_End::OnColliderBeginOverlap(class UPrimitiveComponent* Ov
 	ATP_ThirdPersonCharacter* character = Cast<ATP_ThirdPersonCharacter>(OtherActor);
 	if (character)
 	{
-		character->SetCanClimbRock(false);
+		character->ResetRockclimbing();
 		character->GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
 	}
 }
