@@ -171,8 +171,10 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ATP_ThirdPersonCharacter::OnResetVR);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATP_ThirdPersonCharacter::Interact);
-	PlayerInputComponent->BindAction("SwitchEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::SwitchEuip);
-	PlayerInputComponent->BindAction("UseEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseEuip);
+	//PlayerInputComponent->BindAction("SwitchEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::SwitchEuip);
+	//PlayerInputComponent->BindAction("UseEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseEuip);
+	PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseFlourBomb);
+	PlayerInputComponent->BindAction("Hook", IE_Pressed, this, &ATP_ThirdPersonCharacter::Hook);
 }
 
 
@@ -771,28 +773,28 @@ void ATP_ThirdPersonCharacter::StopPush(bool changeCollision)
 	pushing = false;
 }
 
-void ATP_ThirdPersonCharacter::SwitchEuip()
-{
-	curEquipId = (curEquipId + 1) % euipItems.Num();
-	curEquip = euipItems[curEquipId];
-	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, FString::Printf(TEXT("curEquip %d"), (int)curEquip));
-	ChangeEuipUI(curEquipId);
-}
+//void ATP_ThirdPersonCharacter::SwitchEuip()
+//{
+//	curEquipId = (curEquipId + 1) % euipItems.Num();
+//	curEquip = euipItems[curEquipId];
+//	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, FString::Printf(TEXT("curEquip %d"), (int)curEquip));
+//	ChangeEuipUI(curEquipId);
+//}
 
-void ATP_ThirdPersonCharacter::UseEuip()
-{
-	if (curEquip == EuipItem::FlourBomb)
-	{
-		UseFlourBomb();
-		//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, "use flour bomb");
-		return;
-	}
-	if (curEquip == EuipItem::Hook)
-	{
-		Hook();
-		return;
-	}
-}
+//void ATP_ThirdPersonCharacter::UseEuip()
+//{
+//	if (curEquip == EuipItem::FlourBomb)
+//	{
+//		UseFlourBomb();
+//		//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, "use flour bomb");
+//		return;
+//	}
+//	if (curEquip == EuipItem::Hook)
+//	{
+//		Hook();
+//		return;
+//	}
+//}
 
 bool ATP_ThirdPersonCharacter::IsExceedEnd(FVector pos)
 {

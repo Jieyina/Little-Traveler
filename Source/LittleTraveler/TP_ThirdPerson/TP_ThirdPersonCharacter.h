@@ -300,8 +300,8 @@ protected:
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
 	void Interact();
-	void SwitchEuip();
-	void UseEuip();
+	//void SwitchEuip();
+	//void UseEuip();
 	void Glide();
 	void StopGlide();
 
