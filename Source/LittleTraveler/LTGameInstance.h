@@ -23,6 +23,9 @@ class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		bool playingMovie;
 
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		TMap<int32, FString> dialogue;
+
 
 public:
 	ULTGameInstance();
@@ -31,4 +34,9 @@ public:
 	inline void SetLevelId(int newIndex) { levelId = newIndex; }
 	inline int GetPrevLevelId() { return prevLevelId; }
 	inline void SetPrevLevelId(int newIndex) { prevLevelId = newIndex; }
+
+	UFUNCTION()
+	FString GetDialogueAt(int32 dialogueId) { return dialogue[dialogueId]; }
+	UFUNCTION()
+	void SetDialogue(TMap<int32, FString> newDialogue) { dialogue = newDialogue; }
 };

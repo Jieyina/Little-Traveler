@@ -1,0 +1,11 @@
+1 Looks like there is something glowing on top of the kitchen cabinet. There must be Little People living in this house.
+2 I have to find a way to get there.
+3 Are you a doctor?
+4 No. I followed the glowing light to the door and heard someone moaning.
+5 *Sigh* My mom is very sick, and it's getting worse...
+6 There is a pill bottle in the pantry. I know that pill could help, but I can't read the labels to find the one she needs.
+7 How can I help?
+8 Can you help us by bringing back the Vitamin bottle? It should be almost empty and easy to carry with you. In return, you are more than welcome to stay here for a while.
+9 By the way, you can use our paraglider to travel around the house. It's broken now, but if you can find a clip, a piece of cloth and a butcher's twine along the way, we will be able to fix it!
+10 The little girl told me I should be able to find cloth and some clips on these shelves. There might be some twine thread on the floor. I should probably go search the cabinet on the left for the Vitamin bottle.
+11 Maybe I should follow the light bulbs.
