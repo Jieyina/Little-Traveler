@@ -9,8 +9,8 @@
 UENUM()
 enum DialogueVer
 {
-	Chinese,
-	English
+	English, Chinese
+	
 };
 
 UCLASS()
@@ -24,7 +24,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		TMap<TEnumAsByte<DialogueVer>, FString> mDialogueVers;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TEnumAsByte<DialogueVer> mActiveVer;
 
 protected:
@@ -32,7 +32,9 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void LoadText();
+	UFUNCTION(BlueprintCallable)
+		void SetActiveLanguage(int index);
 
 };

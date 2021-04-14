@@ -44,3 +44,7 @@ void ADialogueText::LoadText() {
 	Cast<ULTGameInstance>(GetGameInstance())->SetDialogue(Texts);
 }
 
+void ADialogueText::SetActiveLanguage(int index) {
+	mActiveVer = static_cast<DialogueVer>(index);
+}
+
