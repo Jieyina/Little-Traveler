@@ -23,7 +23,9 @@ void ADialogueText::BeginPlay()
 }
 
 void ADialogueText::LoadText() {
-	Cast<ULTGameInstance>(GetGameInstance())->SetDialogue(mDialogueVers[mActiveVer]);
+	ULTGameInstance* gameIns = Cast<ULTGameInstance>(GetGameInstance());
+	if (gameIns)
+		gameIns->SetDialogue(mDialogueVers[mActiveVer]);
 }
 
 void ADialogueText::SetActiveLanguage(int index) {

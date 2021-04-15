@@ -34,6 +34,9 @@ class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		int numWalnut;
 
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		int catPushedTimes;
+
 protected:
 	void QueryAchievements();
 	void OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
