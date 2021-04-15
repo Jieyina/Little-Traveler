@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Language.h"
 #include "DialogueText.generated.h"
 
 UENUM()
@@ -23,7 +24,7 @@ public:
 	ADialogueText();
 
 	UPROPERTY(EditAnywhere)
-		TMap<TEnumAsByte<DialogueVer>, FString> mDialogueVers;
+		TMap<TEnumAsByte<DialogueVer>, ULanguage*> mDialogueVers;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TEnumAsByte<DialogueVer> mActiveVer;
 
