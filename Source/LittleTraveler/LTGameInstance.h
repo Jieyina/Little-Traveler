@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "OnlineStats.h"
 #include "LTGameInstance.generated.h"
 
 /**
@@ -32,6 +33,16 @@ class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		int numWalnut;
 
+protected:
+	void QueryAchievements();
+	void OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
+	void UpdateAchievementProgress(const FString& Id, float Percent);
+	FOnlineAchievementsWritePtr AchievementsWriteObjectPtr;
+	void OnWriteAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
+
+	UFUNCTION(BlueprintCallable)
+		void SwitchLevel(int prevLevel, int newLevel);
+
 
 public:
 	ULTGameInstance();
@@ -46,6 +57,8 @@ public:
 	inline void SetSpawnPos(FRotator rot) { spawnRot = rot; }
 	inline int GetWalnutNum() { return numWalnut; }
 	inline void AddWalnutNum() { numWalnut++; }
+
+	//void CollectWalnut();
 
 	UFUNCTION()
 	FString GetDialogueAt(int32 dialogueId) { return dialogue[dialogueId]; }

@@ -68,7 +68,7 @@ void AWalnut::OnSphereEndOverlap(class UPrimitiveComponent* OverlappedComp, clas
 	ShadeMesh->SetHiddenInGame(true);
 }
 
-void AWalnut::Collect()
+void AWalnut::Collect(class ATP_ThirdPersonCharacter* player)
 {
 	Mesh->SetHiddenInGame(true);
 	ShadeMesh->SetHiddenInGame(true);
@@ -77,6 +77,10 @@ void AWalnut::Collect()
 	if (gameIns)
 	{
 		gameIns->AddWalnutNum();
+		if (gameIns->GetWalnutNum() == 1)
+			player->UnlockAchievement(FString("ACH_ONE_WALNUT"), 100.0f);
+		else if (gameIns->GetWalnutNum() == 6)
+			player->UnlockAchievement(FString("ACH_ALL_WALNUT"), 100.0f);
 	}
 	GetWorldTimerManager().SetTimer(VFXTimer, this, &AWalnut::DestroyItem, VFXDuration, false);
 }

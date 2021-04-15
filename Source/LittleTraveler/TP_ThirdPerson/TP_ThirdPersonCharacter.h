@@ -371,6 +371,9 @@ public:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void UnlockAchievement(const FString& Id, float Percent);
+
 	void StartPush(float friction, FVector direction, USceneComponent* start);
 	void StopPush(bool changeCollision = true);
 

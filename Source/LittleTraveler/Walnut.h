@@ -32,7 +32,7 @@ public:
 	// Sets default values for this actor's properties
 	AWalnut();
 
-	void Collect();
+	void Collect(class ATP_ThirdPersonCharacter* player);
 
 protected:
 	UPROPERTY(EditAnywhere)

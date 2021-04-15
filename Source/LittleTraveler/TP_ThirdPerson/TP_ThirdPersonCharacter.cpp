@@ -708,7 +708,7 @@ void ATP_ThirdPersonCharacter::Interact()
 		AWalnut* walnut = Cast<AWalnut>(hit.Actor);
 		if (walnut) {
 			CollectAudio->Play();
-			walnut->Collect();
+			walnut->Collect(this);
 		}
 	}
 	else if (hit.Actor->ActorHasTag("Talk"))
