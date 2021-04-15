@@ -6,7 +6,6 @@
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
-#include "Engine/Engine.h"
 
 ATrampoline::ATrampoline() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -51,7 +50,6 @@ void ATrampoline::OnBoxOverlapBegin(class UPrimitiveComponent* OverlappedComp, c
 		FVector cur_vel = character->GetVelocity();
 		FVector bounce_vel(0.5f * cur_vel.X, 0.5f * cur_vel.Y, -cur_vel.Z * multiple);
 		character->LaunchCharacter(bounce_vel, true, true);
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, "launch");
 	}
 }
 

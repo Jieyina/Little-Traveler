@@ -134,6 +134,7 @@ void AHook::Launch(AActor* hookedObj, ATP_ThirdPersonCharacter* player)
 		Player = player;
 		startPos = Player->GetMesh()->GetSocketLocation(FName("Hand_R"));
 		endPos = HookedObj->GetHookPoint()->GetComponentLocation();
+		playerForward = Player->GetActorForwardVector();
 		this->SetActorLocation(endPos);
 		this->SetActorRotation(HookedObj->GetArrow()->GetComponentRotation());
 		Hook->SetWorldLocation(startPos);
@@ -151,7 +152,7 @@ void AHook::LerpToShoot(float value)
 
 bool AHook::BeforeHookPoint(FVector pos)
 {
-	return FVector::DotProduct(endPos - pos, Player->GetActorForwardVector()) >= 0;
+	return FVector::DotProduct(endPos - pos, playerForward) >= 0;
 }
 
 void AHook::OnShootFinish()
@@ -175,10 +176,11 @@ void AHook::OnShootFinish()
 	Player->AddActorLocalOffset(FVector(0, 0, -handOffset));
 	//desPos = endPos + FVector(0, 0, -UKismetMathLibrary::Vector_Distance(startPos, endPos));
 	desPos = endPos + FVector(0, 0, HookedObj->GetSwingLength() * -1);
-	if (FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetArrow()->GetForwardVector()) >= 0)
+	if (FVector::DotProduct(playerForward, HookedObj->GetArrow()->GetForwardVector()) >= 0)
 		desRot = FRotator(0, HookedObj->GetArrow()->GetComponentRotation().Yaw, 0);
 	else
 		desRot = FRotator(0, 180 + HookedObj->GetArrow()->GetComponentRotation().Yaw, 0);
+	//desRot = FRotator(0, HookedObj->GetArrow()->GetComponentRotation().Yaw, 0);
 	PullTimeline->PlayFromStart();
 }
 
@@ -213,7 +215,7 @@ void AHook::Swing(float axisVal)
 	if (Hook->GetComponentLocation().Z - End->GetComponentLocation().Z > stopHeight)
 	{
 		//if ((BeforeHookPoint(Player->GetActorLocation()) && axisVal < 0) || (!BeforeHookPoint(Player->GetActorLocation()) && axisVal > 0))
-		End->AddForce(UKismetMathLibrary::SignOfFloat(FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetArrow()->GetForwardVector())) *
+		End->AddForce(UKismetMathLibrary::SignOfFloat(FVector::DotProduct(playerForward, HookedObj->GetArrow()->GetForwardVector())) *
 			axisVal * swingForce * HookedObj->GetArrow()->GetForwardVector(), FName("None"), true);
 	}
 }
@@ -236,8 +238,9 @@ void AHook::Release(bool destroyPlayer)
 		Player = nullptr;
 	else
 	{
-		FVector launchVelo = UKismetMathLibrary::SignOfFloat(FVector::DotProduct(Player->GetActorForwardVector(), HookedObj->GetArrow()->GetForwardVector()))
+		FVector launchVelo = UKismetMathLibrary::SignOfFloat(FVector::DotProduct(playerForward, HookedObj->GetArrow()->GetForwardVector()))
 			* HookedObj->GetArrow()->GetForwardVector() * launchSpeed;
+		//FVector launchVelo = HookedObj->GetArrow()->GetForwardVector() * launchSpeed;
 		launchVelo.Z = launchSpeed;
 		Player->SetActorRotation(desRot);
 		Player->LaunchCharacter(launchVelo, false, true);
