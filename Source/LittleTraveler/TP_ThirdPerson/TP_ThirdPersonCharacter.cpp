@@ -942,6 +942,7 @@ void ATP_ThirdPersonCharacter::OnLerpToJumpFinish()
 		jumpDir = JumpDir::NotJump;
 		GetCharacterMovement()->MovementMode = EMovementMode::MOVE_Walking;
 		jumpLedge = false;
+		StopJumping();
 	}
 }
 
