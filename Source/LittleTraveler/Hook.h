@@ -37,6 +37,7 @@ class LITTLETRAVELER_API AHook : public AActor
 
 	FVector startPos;
 	FVector endPos;
+	FVector playerForward;
 	FRotator startRot;
 	FVector desPos;
 	FRotator desRot;
