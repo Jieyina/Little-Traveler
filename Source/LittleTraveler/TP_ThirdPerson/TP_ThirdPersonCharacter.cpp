@@ -452,11 +452,6 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 	if (isTurningToForward) {
 		GetCameraBoom()->bUsePawnControlRotation = false;
 		canMove = false;
-		FRotator delta = GetActorRotation() - forward;
-		if (FMath::Abs(delta.Pitch) < 0.1f && FMath::Abs(delta.Roll) < 0.1f && FMath::Abs(delta.Yaw) < 0.1f) {
-			// UE_LOG(LogTemp, Warning, TEXT("OVER"));
-			isTurningToForward = false;
-		}
 		// UE_LOG(LogTemp, Warning, TEXT("SETTING %s"), *(GetActorRotation().ToString()));
 
 		SetActorRotation(FMath::Lerp(FQuat(GetActorRotation()), FQuat(forward), 0.05f));
@@ -464,6 +459,14 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 			float length = FMath::Lerp(GetCameraBoom()->TargetArmLength, climbingLength, 0.05f);
 			GetCameraBoom()->TargetArmLength = length;
 		}
+
+		FRotator delta = GetCameraBoom()->GetComponentRotation() - forward;
+		if (FMath::Abs(delta.Pitch) < 0.1f && FMath::Abs(delta.Roll) < 0.1f && FMath::Abs(delta.Yaw) < 0.1f) {
+			UE_LOG(LogTemp, Warning, TEXT("OVER"));
+			isTurningToForward = false;
+			GetCameraBoom()->SetWorldRotation(FQuat(forward));
+		}
+		GetCameraBoom()->SetWorldRotation(FMath::Lerp(FQuat(GetCameraBoom()->GetComponentRotation()), FQuat(forward), 0.05f));
 
 		return;
 	}
@@ -475,6 +478,7 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 		if (FMath::Abs(delta.Pitch) < 0.1f && FMath::Abs(delta.Roll) < 0.1f && FMath::Abs(delta.Yaw) < 0.1f) {
 			UE_LOG(LogTemp, Warning, TEXT("OVER"));
 			isSettingUpCamera = false;
+			GetCameraBoom()->SetWorldRotation(FQuat(forward));
 		}
 		// UE_LOG(LogTemp, Warning, TEXT("SETTING %s"), *(GetActorRotation().ToString()));
 
@@ -483,6 +487,7 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 			GetCameraBoom()->TargetArmLength = length;
 		}
 		// UE_LOG(LogTemp, Warning, TEXT("SETTING %s"), *(GetCameraBoom()->GetComponentRotation().ToString()));
+		// GetCameraBoom()->SetWorldRotation(FQuat(forward));
 		GetCameraBoom()->SetWorldRotation(FMath::Lerp(FQuat(GetCameraBoom()->GetComponentRotation()), FQuat(forward), 0.05f));
 		return;
 	}
@@ -576,10 +581,12 @@ void ATP_ThirdPersonCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ATP_ThirdPersonCharacter::TurnToForward(FVector p_Forward) {
 	FVector temp = p_Forward;
-	isTurningToForward = true;
 	temp.Normalize();
 	forward = temp.Rotation();
+	UE_LOG(LogClass, Log, TEXT("Rotation: %s"), *forward.ToString());
 	prevLength = GetCameraBoom()->TargetArmLength;
+	GetCameraBoom()->bDoCollisionTest = false;
+	isTurningToForward = true;
 }
 
 void ATP_ThirdPersonCharacter::SetUpNormalJump(FVector p_Forward) {
@@ -1106,4 +1113,5 @@ void ATP_ThirdPersonCharacter::ResetRockclimbing() {
 	hangRock = false;
 	RockClimbObj = nullptr;
 	CurRock = nullptr;
+	GetCameraBoom()->bDoCollisionTest = true;
 }

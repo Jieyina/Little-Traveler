@@ -18,6 +18,15 @@ public:
 	ARockClimbTrigger_Start();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool UseBlend;
+
+	UPROPERTY(BlueprintReadWrite)
+		bool IsBlending;
+
+	UPROPERTY(BlueprintReadWrite)
+		bool HasBlended;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector Forward;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
