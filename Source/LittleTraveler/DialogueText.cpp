@@ -23,25 +23,7 @@ void ADialogueText::BeginPlay()
 }
 
 void ADialogueText::LoadText() {
-	TMap<int32, FString> Texts;
-
-	FString directory = FPaths::GameContentDir();
-	FString result;
-	FString myFile = directory + "Texts/" + mDialogueVers[mActiveVer];
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *myFile);
-	if (FFileHelper::LoadFileToString(result, *myFile)) {
-		TArray<FString> lines;
-		result.ParseIntoArray(lines, TEXT("\n"), true);
-		for (int i = 0; i < lines.Num(); i++) {
-			FString Left, Right;
-			lines[i].Split(TEXT(" "), &Left, &Right);
-			UE_LOG(LogTemp, Warning, TEXT("%d"), FCString::Atoi(*Left));
-			int32 index = FCString::Atoi(*Left);
-			Texts.Add(index, Right);
-		}
-		UE_LOG(LogTemp, Warning, TEXT("%d"), lines.Num());
-	}
-	Cast<ULTGameInstance>(GetGameInstance())->SetDialogue(Texts);
+	Cast<ULTGameInstance>(GetGameInstance())->SetDialogue(mDialogueVers[mActiveVer]);
 }
 
 void ADialogueText::SetActiveLanguage(int index) {
