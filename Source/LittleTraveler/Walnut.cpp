@@ -3,9 +3,12 @@
 
 #include "Walnut.h"
 #include "Components/SceneComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "TimerManager.h"
+#include "LTGameInstance.h"
+#include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
 
 // Sets default values
 AWalnut::AWalnut()
@@ -22,9 +25,20 @@ AWalnut::AWalnut()
 	Mesh->SetupAttachment(RootComponent);
 	Mesh->SetCollisionProfileName("Interactive");
 
+	ShadeMesh = CreateDefaultSubobject<UStaticMeshComponent>("ShadeMesh");
+	ShadeMesh->SetupAttachment(RootComponent);
+	ShadeMesh->SetCollisionProfileName("NoCollision");
+	ShadeMesh->SetHiddenInGame(true);
+
 	Particle = CreateDefaultSubobject<UParticleSystemComponent>("Particle");
 	Particle->SetupAttachment(RootComponent);
 	Particle->SetAutoActivate(false);
+
+	Collider = CreateDefaultSubobject<USphereComponent>("Collider");
+	Collider->SetupAttachment(RootComponent);
+	Collider->SetCollisionProfileName("OverlapPawn");
+	Collider->OnComponentBeginOverlap.AddDynamic(this, &AWalnut::OnSphereBeginOverlap);
+	Collider->OnComponentEndOverlap.AddDynamic(this, &AWalnut::OnSphereEndOverlap);
 
 	this->Tags.Add("Walnut");
 }
@@ -43,10 +57,27 @@ void AWalnut::Tick(float DeltaTime)
 
 }
 
+void AWalnut::OnSphereBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (Cast<ATP_ThirdPersonCharacter>(OtherActor))
+		ShadeMesh->SetHiddenInGame(false);
+}
+
+void AWalnut::OnSphereEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ShadeMesh->SetHiddenInGame(true);
+}
+
 void AWalnut::Collect()
 {
 	Mesh->SetHiddenInGame(true);
+	ShadeMesh->SetHiddenInGame(true);
 	Particle->Activate();
+	ULTGameInstance* gameIns = Cast<ULTGameInstance>(GetGameInstance());
+	if (gameIns)
+	{
+		gameIns->AddWalnutNum();
+	}
 	GetWorldTimerManager().SetTimer(VFXTimer, this, &AWalnut::DestroyItem, VFXDuration, false);
 }
 

@@ -21,10 +21,16 @@ class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 		int prevLevelId;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		bool playingMovie;
+		TMap<int32, FString> dialogue;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		TMap<int32, FString> dialogue;
+		FVector spawnPos;
+
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		FRotator spawnRot;
+
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		int numWalnut;
 
 
 public:
@@ -34,6 +40,12 @@ public:
 	inline void SetLevelId(int newIndex) { levelId = newIndex; }
 	inline int GetPrevLevelId() { return prevLevelId; }
 	inline void SetPrevLevelId(int newIndex) { prevLevelId = newIndex; }
+	inline FVector GetSpawnPos() { return spawnPos; }
+	inline void SetSpawnPos(FVector pos) { spawnPos = pos; }
+	inline FRotator GetSpawnRot() { return spawnRot; }
+	inline void SetSpawnPos(FRotator rot) { spawnRot = rot; }
+	inline int GetWalnutNum() { return numWalnut; }
+	inline void AddWalnutNum() { numWalnut++; }
 
 	UFUNCTION()
 	FString GetDialogueAt(int32 dialogueId) { return dialogue[dialogueId]; }

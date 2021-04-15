@@ -628,25 +628,25 @@ void ATP_ThirdPersonCharacter::Landed(const FHitResult& Hit)
 		StopGlide();
 		return;
 	}
-	if (GetCharacterMovement()->Velocity.Z < -460.0f)
-	{
-		this->Destroy();
-		bool hasSave = UGameplayStatics::DoesSaveGameExist("save", 0);
-		if (hasSave)
-		{
-			UGameSave* save = Cast<UGameSave>(UGameplayStatics::LoadGameFromSlot("save", 0));
-			if (save && CharacterBP)
-			{
-				ATP_ThirdPersonCharacter* newCharacter = GetWorld()->SpawnActor<ATP_ThirdPersonCharacter>(CharacterBP, save->GetSpawnPos(), save->GetSpawnRot());
-				UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(newCharacter);
-			}
-		}
-		else if (PlayerStart && CharacterBP)
-		{
-			ATP_ThirdPersonCharacter* newCharacter = GetWorld()->SpawnActor<ATP_ThirdPersonCharacter>(CharacterBP, PlayerStart->GetActorLocation(), PlayerStart->GetActorRotation());
-			UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(newCharacter);
-		}
-	}
+	//if (GetCharacterMovement()->Velocity.Z < -460.0f)
+	//{
+	//	this->Destroy();
+	//	bool hasSave = UGameplayStatics::DoesSaveGameExist("save", 0);
+	//	if (hasSave)
+	//	{
+	//		UGameSave* save = Cast<UGameSave>(UGameplayStatics::LoadGameFromSlot("save", 0));
+	//		if (save && CharacterBP)
+	//		{
+	//			ATP_ThirdPersonCharacter* newCharacter = GetWorld()->SpawnActor<ATP_ThirdPersonCharacter>(CharacterBP, save->GetSpawnPos(), save->GetSpawnRot());
+	//			UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(newCharacter);
+	//		}
+	//	}
+	//	else if (PlayerStart && CharacterBP)
+	//	{
+	//		ATP_ThirdPersonCharacter* newCharacter = GetWorld()->SpawnActor<ATP_ThirdPersonCharacter>(CharacterBP, PlayerStart->GetActorLocation(), PlayerStart->GetActorRotation());
+	//		UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(newCharacter);
+	//	}
+	//}
 }
 
 void ATP_ThirdPersonCharacter::Interact()
