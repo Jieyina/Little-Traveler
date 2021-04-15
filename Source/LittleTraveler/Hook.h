@@ -32,6 +32,9 @@ class LITTLETRAVELER_API AHook : public AActor
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UTimelineComponent* PullTimeline;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class UTimelineComponent* SwingTimeline;
+
 	FVector startPos;
 	FVector endPos;
 	FRotator startRot;
@@ -42,10 +45,10 @@ class LITTLETRAVELER_API AHook : public AActor
 	UPROPERTY()
 		class AHookable* HookedObj;
 
-	bool swinging;
-	bool flip;
-	float swingSpeed;
-	float swingCountDown;
+	//bool swinging;
+	//bool flip;
+	//float swingSpeed;
+	//float swingCountDown;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Hook")
@@ -67,13 +70,16 @@ protected:
 		UCurveFloat* PullCurve;
 
 	UPROPERTY(EditAnywhere, Category = "Hook")
+		UCurveFloat* SwingCurve;
+
+	UPROPERTY(EditAnywhere, Category = "Hook")
 		float handOffset;
 
-	UPROPERTY(EditAnywhere, Category = "Hook")
-		float swingAngle;
+	//UPROPERTY(EditAnywhere, Category = "Hook")
+	//	float swingAngle;
 
-	UPROPERTY(EditAnywhere, Category = "Hook")
-		float swingPeriod;
+	//UPROPERTY(EditAnywhere, Category = "Hook")
+	//	float swingPeriod;
 
 	UPROPERTY(EditAnywhere, Category = "Hook")
 		float launchSpeed;
@@ -94,6 +100,8 @@ protected:
 		void LerpToPull(float value);
 	UFUNCTION()
 		void OnPullFinish();
+	UFUNCTION()
+		void RotateToSwing(float value);
 
 	bool BeforeHookPoint(FVector pos);
 

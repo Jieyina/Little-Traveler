@@ -45,6 +45,8 @@ AHook::AHook()
 
 	ShootTimeline = CreateDefaultSubobject<UTimelineComponent>("ShootTimeline");
 	PullTimeline = CreateDefaultSubobject<UTimelineComponent>("PullTimeline");
+	SwingTimeline = CreateDefaultSubobject<UTimelineComponent>("SwingTimeline");
+	SwingTimeline->SetLooping(true);
 
 	startPos = FVector(0, 0, 0);
 	endPos = FVector(0, 0, 0);
@@ -56,9 +58,9 @@ AHook::AHook()
 	swingForce = 100.0f;
 	shrinkRate = 0.5f;
 
-	swinging = false;
-	swingAngle = 45.0f;
-	swingPeriod = 0.5f;
+	//swinging = false;
+	//swingAngle = 45.0f;
+	//swingPeriod = 0.5f;
 	launchSpeed = 200.0f;
 	handOffset = 100.0f;
 }
@@ -68,7 +70,7 @@ void AHook::BeginPlay()
 {
 	Super::BeginPlay();
 
-	swingSpeed = swingAngle / swingPeriod;
+	//swingSpeed = swingAngle / swingPeriod;
 
 	if (ShootCurve)
 	{
@@ -90,6 +92,13 @@ void AHook::BeginPlay()
 		PullTimeline->SetTimelineFinishedFunc(PullFinishCallback);
 	}
 
+	if (SwingCurve)
+	{
+		FOnTimelineFloat SwingCallback;
+		SwingCallback.BindUFunction(this, FName("RotateToSwing"));
+		SwingTimeline->AddInterpFloat(SwingCurve, SwingCallback);
+	}
+
 	this->SetActorHiddenInGame(true);
 }
 
@@ -97,24 +106,24 @@ void AHook::BeginPlay()
 void AHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	float offset = swingSpeed * DeltaTime;
-	if (swinging)
-	{
-		if (flip)
-		{
-			Hook->AddRelativeRotation(FRotator(-offset, 0, 0));
-		}
-		else
-		{
-			Hook->AddRelativeRotation(FRotator(offset, 0, 0));
-		}
-		swingCountDown -= DeltaTime;
-		if (swingCountDown < 0)
-		{
-			flip = !flip;
-			swingCountDown = swingPeriod * 2;
-		}
-	}
+	//float offset = swingSpeed * DeltaTime;
+	//if (swinging)
+	//{
+	//	if (flip)
+	//	{
+	//		Hook->AddRelativeRotation(FRotator(-offset, 0, 0));
+	//	}
+	//	else
+	//	{
+	//		Hook->AddRelativeRotation(FRotator(offset, 0, 0));
+	//	}
+	//	swingCountDown -= DeltaTime;
+	//	if (swingCountDown < 0)
+	//	{
+	//		flip = !flip;
+	//		swingCountDown = swingPeriod * 2;
+	//	}
+	//}
 }
 
 void AHook::Launch(AActor* hookedObj, ATP_ThirdPersonCharacter* player)
@@ -187,9 +196,16 @@ void AHook::OnPullFinish()
 	//Constraint->SetConstrainedComponents(Hook, FName("None"), End, FName("None"));
 	//Player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	Player->SetSwing(true);
-	swinging = true;
-	swingCountDown = swingPeriod;
-	flip = false;
+	//swinging = true;
+	//swingCountDown = swingPeriod;
+	//flip = false;
+	SwingTimeline->PlayFromStart();
+}
+
+void AHook::RotateToSwing(float value)
+{
+	FRotator newRot = FRotator(value, 0, 0);
+	Hook->SetRelativeRotation(newRot);
 }
 
 void AHook::Swing(float axisVal)
@@ -226,8 +242,9 @@ void AHook::Release(bool destroyPlayer)
 		Player->SetActorRotation(desRot);
 		Player->LaunchCharacter(launchVelo, false, true);
 	}
-	swinging = false;
+	//swinging = false;
 	this->SetActorHiddenInGame(true);
+	SwingTimeline->Stop();
 	Hook->SetRelativeLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
 	End->SetRelativeLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
 	//Constraint->SetConstrainedComponents(nullptr, FName("None"), nullptr, FName("None"));
