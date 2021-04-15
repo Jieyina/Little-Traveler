@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Language.h"
 #include "LTGameInstance.generated.h"
 
 /**
@@ -21,7 +22,7 @@ class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 		int prevLevelId;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		TMap<int32, FString> dialogue;
+		ULanguage* dialogue;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		FVector spawnPos;
@@ -47,8 +48,6 @@ public:
 	inline int GetWalnutNum() { return numWalnut; }
 	inline void AddWalnutNum() { numWalnut++; }
 
-	UFUNCTION()
-	FString GetDialogueAt(int32 dialogueId) { return dialogue[dialogueId]; }
-	UFUNCTION()
-	void SetDialogue(TMap<int32, FString> newDialogue) { dialogue = newDialogue; }
+	inline ULanguage* GetDialogueAt() { return dialogue; }
+	inline void SetDialogue(ULanguage* newLanguage) { dialogue = newLanguage; }
 };
