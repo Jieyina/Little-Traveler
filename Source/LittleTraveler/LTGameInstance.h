@@ -58,7 +58,7 @@ public:
 	inline FVector GetSpawnPos() { return spawnPos; }
 	inline void SetSpawnPos(FVector pos) { spawnPos = pos; }
 	inline FRotator GetSpawnRot() { return spawnRot; }
-	inline void SetSpawnPos(FRotator rot) { spawnRot = rot; }
+	inline void SetSpawnRot(FRotator rot) { spawnRot = rot; }
 	inline int GetWalnutNum() { return numWalnut; }
 	inline void AddWalnutNum() { numWalnut++; }
 
