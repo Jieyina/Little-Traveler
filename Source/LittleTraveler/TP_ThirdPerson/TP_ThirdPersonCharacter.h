@@ -44,7 +44,10 @@ class ATP_ThirdPersonCharacter : public ACharacter
 		class UCameraComponent* FollowCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		class UStaticMeshComponent* GlideEquip;
+		class UStaticMeshComponent* GlidePaper;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class UStaticMeshComponent* Glider;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UTimelineComponent* MoveToPushTimeline;
@@ -384,7 +387,6 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	FORCEINLINE class UStaticMeshComponent* GetGlideEquip() const { return GlideEquip; }
 
 	void ResetRockclimbing();
 	inline void SetCanClimbRock(bool value) { canClimbRock = value; }
