@@ -71,10 +71,15 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
-	GlideEquip = CreateDefaultSubobject<UStaticMeshComponent>("GlideEquip");
-	GlideEquip->SetupAttachment(RootComponent);
-	GlideEquip->SetCollisionProfileName("NoCollision");
-	GlideEquip->SetHiddenInGame(true);
+	GlidePaper = CreateDefaultSubobject<UStaticMeshComponent>("GlidePaper");
+	GlidePaper->SetupAttachment(RootComponent);
+	GlidePaper->SetCollisionProfileName("NoCollision");
+	GlidePaper->SetHiddenInGame(true);
+
+	Glider = CreateDefaultSubobject<UStaticMeshComponent>("Glider");
+	Glider->SetupAttachment(RootComponent);
+	Glider->SetCollisionProfileName("NoCollision");
+	Glider->SetHiddenInGame(true);
 
 	MoveToPushTimeline = CreateDefaultSubobject<UTimelineComponent>("PushTimeline");
 	MoveToClimbTimeline = CreateDefaultSubobject<UTimelineComponent>("ClimbTimeline");
@@ -610,10 +615,12 @@ void ATP_ThirdPersonCharacter::Glide()
 	{
 		canGlide = false;
 		UpdateGlideUI(false);
+		GlidePaper->SetHiddenInGame(false);
 	}
+	else
+		Glider->SetHiddenInGame(false);
 	GlidingAudio->Play();
 	gliding = true;
-	GlideEquip->SetHiddenInGame(false);
 	LaunchCharacter(FVector(0, 0, 5), false, true);
 	GetCharacterMovement()->GravityScale = glideGravity;
 	GetCharacterMovement()->AirControl = 1.0f;
@@ -621,8 +628,11 @@ void ATP_ThirdPersonCharacter::Glide()
 
 void ATP_ThirdPersonCharacter::StopGlide()
 {
+	if (curLevel <= 2)
+		GlidePaper->SetHiddenInGame(true);
+	else
+		Glider->SetHiddenInGame(true);
 	gliding = false;
-	GlideEquip->SetHiddenInGame(true);
 	GetCharacterMovement()->GravityScale = initGravity;
 	GetCharacterMovement()->AirControl = initAirContol;
 }
