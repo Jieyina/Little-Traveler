@@ -10,25 +10,23 @@
 #include "../Transport.h"
 #include "TP_ThirdPersonCharacter.generated.h"
 
-USTRUCT(BlueprintType)
-struct FCraftItem
-{
-	GENERATED_USTRUCT_BODY()
-public:
-	UPROPERTY(EditAnywhere)
-		FString name;
-	UPROPERTY(EditAnywhere)
-		TMap<FString, int32> materials;
-};
+//USTRUCT(BlueprintType)
+//struct FCraftItem
+//{
+//	GENERATED_USTRUCT_BODY()
+//public:
+//	UPROPERTY(EditAnywhere)
+//		FString name;
+//	UPROPERTY(EditAnywhere)
+//		TMap<FString, int32> materials;
+//};
 
 UENUM()
 enum EuipItem
 {
 	FlourBomb = 0,
-	Hook = 1,
-	BubbleWand = 2
+	Hook = 1
 };
-
 
 UCLASS(config = Game)
 class ATP_ThirdPersonCharacter : public ACharacter
@@ -200,10 +198,10 @@ class ATP_ThirdPersonCharacter : public ACharacter
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		class UAudioComponent* CollectAudio;
-	TMap<FString, int32> resources;
+	//TMap<FString, int32> resources;
 	TMap<FString, int32> questItems;
 	TMap<FString, int32> treasures;
-	TArray<FString> craftedTools;
+	//TArray<FString> craftedTools;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP Setting|Game")
@@ -248,8 +246,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Hook")
 		float launchZSpeed;
 
-	UPROPERTY(EditAnywhere, Category = "BP Setting|Craft")
-		TArray<FCraftItem> CraftItems;
+	//UPROPERTY(EditAnywhere, Category = "BP Setting|Craft")
+	//	TArray<FCraftItem> CraftItems;
 
 public:
 	ATP_ThirdPersonCharacter();
@@ -381,7 +379,9 @@ public:
 	void StopPush(bool changeCollision = true);
 
 	UFUNCTION(BlueprintCallable)
-		void Craft(FString name);
+		int GetItemNum(TEnumAsByte<ECollectableType> type, FString name);
+	//UFUNCTION(BlueprintCallable)
+	//	void Craft(FString name);
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

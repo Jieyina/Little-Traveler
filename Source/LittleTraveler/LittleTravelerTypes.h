@@ -8,6 +8,6 @@ UENUM(BlueprintType)
 enum ECollectableType
 {
 	Collect_Treasure,
-	Collect_MainQuest,
-	Collect_Resource
+	Collect_MainQuest
+	//Collect_Resource
 };

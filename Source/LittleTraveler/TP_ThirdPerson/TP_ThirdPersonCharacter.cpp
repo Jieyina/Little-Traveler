@@ -1083,38 +1083,53 @@ void ATP_ThirdPersonCharacter::AddToInventory(TEnumAsByte<ECollectableType> type
 		else
 			treasures.Emplace(name, 1);
 		break;
-	case ECollectableType::Collect_Resource:
-		if (resources.Contains(name))
-			resources[name] += 1;
-		else
-			resources.Emplace(name, 1);
-		break;
+	//case ECollectableType::Collect_Resource:
+	//	if (resources.Contains(name))
+	//		resources[name] += 1;
+	//	else
+	//		resources.Emplace(name, 1);
+	//	break;
 	default:
 		return;
 	}
 }
 
-void ATP_ThirdPersonCharacter::Craft(FString name)
+int ATP_ThirdPersonCharacter::GetItemNum(TEnumAsByte<ECollectableType> type, FString name)
 {
-	for (FCraftItem item : CraftItems)
+	switch (type)
 	{
-		if (item.name == name)
-		{
-			for (auto pair : item.materials)
-			{
-				if (resources.FindRef(pair.Key) < pair.Value)
-					return;
-			}
-			for (auto pair : item.materials)
-			{
-				resources[pair.Key] -= pair.Value;
-			}
-			craftedTools.Emplace(name);
-			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, FString::Printf(TEXT("craft %s"), *name));
-		}
-		return;
+	case ECollectableType::Collect_MainQuest:
+		return questItems.FindRef(name);
+	case ECollectableType::Collect_Treasure:
+		return treasures.FindRef(name);
+	//case ECollectableType::Collect_Resource:
+	// return resources.FindRef(name);
+	default:
+		return 0;
 	}
 }
+
+//void ATP_ThirdPersonCharacter::Craft(FString name)
+//{
+//	for (FCraftItem item : CraftItems)
+//	{
+//		if (item.name == name)
+//		{
+//			for (auto pair : item.materials)
+//			{
+//				if (resources.FindRef(pair.Key) < pair.Value)
+//					return;
+//			}
+//			for (auto pair : item.materials)
+//			{
+//				resources[pair.Key] -= pair.Value;
+//			}
+//			craftedTools.Emplace(name);
+//			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, FString::Printf(TEXT("craft %s"), *name));
+//		}
+//		return;
+//	}
+//}
 
 void ATP_ThirdPersonCharacter::ResetRockclimbing() {
 	canClimbRock = false;
