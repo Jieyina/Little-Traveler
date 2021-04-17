@@ -489,6 +489,7 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 		// UE_LOG(LogTemp, Warning, TEXT("SETTING %s"), *(GetCameraBoom()->GetComponentRotation().ToString()));
 		// GetCameraBoom()->SetWorldRotation(FQuat(forward));
 		GetCameraBoom()->SetWorldRotation(FMath::Lerp(FQuat(GetCameraBoom()->GetComponentRotation()), FQuat(forward), 0.05f));
+		SetActorRotation(FMath::Lerp(FQuat(GetActorRotation()), FQuat(FVector(0, -1, 0).Rotation()), 0.1f));
 		return;
 	}
 
@@ -563,7 +564,7 @@ void ATP_ThirdPersonCharacter::Tick(float DeltaTime)
 		// UE_LOG(LogTemp, Warning, TEXT("Some warning message"));
 		GetCameraBoom()->TargetArmLength = prevLength;
 		GetCameraBoom()->TargetOffset = FVector(0, 0, 0);
-		GetCameraBoom()->bUsePawnControlRotation = true;
+		
 		canMove = true;
 		initializeClimbing = true;
 	}
@@ -1114,4 +1115,7 @@ void ATP_ThirdPersonCharacter::ResetRockclimbing() {
 	RockClimbObj = nullptr;
 	CurRock = nullptr;
 	GetCameraBoom()->bDoCollisionTest = true;
+	SetActorRotation(FQuat(FVector(0, 1, 0).Rotation()));
+	GetCameraBoom()->SetWorldRotation(FQuat(FVector(0, 1, 0).Rotation()));
+	GetCameraBoom()->bUsePawnControlRotation = true;
 }
