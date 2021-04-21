@@ -6,6 +6,8 @@
 ACollectable::ACollectable()
 {
 	this->Tags.Emplace("Collectable");
+	type = ECollectableType::Collect_Treasure;
+	achievementId = -1;
 }
 
 

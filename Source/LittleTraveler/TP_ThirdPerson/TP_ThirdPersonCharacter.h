@@ -10,17 +10,6 @@
 #include "../Transport.h"
 #include "TP_ThirdPersonCharacter.generated.h"
 
-//USTRUCT(BlueprintType)
-//struct FCraftItem
-//{
-//	GENERATED_USTRUCT_BODY()
-//public:
-//	UPROPERTY(EditAnywhere)
-//		FString name;
-//	UPROPERTY(EditAnywhere)
-//		TMap<FString, int32> materials;
-//};
-
 UENUM()
 enum EuipItem
 {
@@ -58,6 +47,9 @@ class ATP_ThirdPersonCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UTimelineComponent* RockClimbTimeline;
+
+	UPROPERTY()
+		class ULTGameInstance* gameInstance;
 
 	UPROPERTY()
 		TArray<TEnumAsByte<EuipItem>> euipItems;
@@ -198,10 +190,6 @@ class ATP_ThirdPersonCharacter : public ACharacter
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		class UAudioComponent* CollectAudio;
-	//TMap<FString, int32> resources;
-	TMap<FString, int32> questItems;
-	TMap<FString, int32> treasures;
-	//TArray<FString> craftedTools;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP Setting|Game")
@@ -245,9 +233,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Hook")
 		float launchZSpeed;
-
-	//UPROPERTY(EditAnywhere, Category = "BP Setting|Craft")
-	//	TArray<FCraftItem> CraftItems;
 
 public:
 	ATP_ThirdPersonCharacter();
@@ -315,8 +300,6 @@ protected:
 	void Hook();
 	void AdjustRope(float axisVal);
 
-	void AddToInventory(TEnumAsByte<ECollectableType> type, FString name);
-
 	UFUNCTION(BlueprintImplementableEvent)
 		void InitUI();
 	UFUNCTION(BlueprintImplementableEvent)
@@ -372,16 +355,12 @@ public:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	void CheckAchievement(int id);
 	UFUNCTION(BlueprintImplementableEvent)
 		void UnlockAchievement(const FString& Id, float Percent);
 
 	void StartPush(float friction, FVector direction, USceneComponent* start);
 	void StopPush(bool changeCollision = true);
-
-	UFUNCTION(BlueprintCallable)
-		int GetItemNum(TEnumAsByte<ECollectableType> type, FString name);
-	//UFUNCTION(BlueprintCallable)
-	//	void Craft(FString name);
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

@@ -14,14 +14,20 @@ class LITTLETRAVELER_API ACollectable : public AInteractable
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Collectable")
-	TEnumAsByte<ECollectableType> type;
+		TEnumAsByte<ECollectableType> type;
 	UPROPERTY(EditAnywhere, Category = "Collectable")
-	FString name;
+		FString name;
+	UPROPERTY(EditAnywhere, Category = "Collectable")
+		int achievementId;
 
 public:
 	ACollectable();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void UpdateCollectUI();
+
 public:
 	FORCEINLINE TEnumAsByte<ECollectableType> GetType() { return type; }
 	FORCEINLINE FString GetName() { return name; }
+	FORCEINLINE int GetAchievementId() { return achievementId; }
 };

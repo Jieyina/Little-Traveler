@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "Language.h"
 #include "OnlineStats.h"
+#include "LittleTravelerTypes.h"
 #include "LTGameInstance.generated.h"
 
 /**
@@ -35,14 +36,21 @@ class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 		int numWalnut;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		int numPantryItem;
+
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		int catPushedTimes;
 
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TMap<FString, int32> questItems;
+	TMap<FString, int32> treasures;
+
 protected:
-	void QueryAchievements();
-	void OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
-	void UpdateAchievementProgress(const FString& Id, float Percent);
-	FOnlineAchievementsWritePtr AchievementsWriteObjectPtr;
-	void OnWriteAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
+	//void QueryAchievements();
+	//void OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
+	//void UpdateAchievementProgress(const FString& Id, float Percent);
+	//FOnlineAchievementsWritePtr AchievementsWriteObjectPtr;
+	//void OnWriteAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
 
 	UFUNCTION(BlueprintCallable)
 		void SwitchLevel(int prevLevel, int newLevel);
@@ -61,6 +69,12 @@ public:
 	inline void SetSpawnRot(FRotator rot) { spawnRot = rot; }
 	inline int GetWalnutNum() { return numWalnut; }
 	inline void AddWalnutNum() { numWalnut++; }
+	inline int GetPantryItemNum() { return numPantryItem; }
+	inline void AddPantryItemNum() { numPantryItem++; }
+
+	void AddToInventory(TEnumAsByte<ECollectableType> type, FString name);
+	UFUNCTION(BlueprintCallable)
+		int GetItemNum(TEnumAsByte<ECollectableType> type, FString name);
 
 	inline ULanguage* GetDialogueAt() { return dialogue; }
 	inline void SetDialogue(ULanguage* newLanguage) { dialogue = newLanguage; }

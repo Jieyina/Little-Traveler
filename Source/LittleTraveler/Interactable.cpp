@@ -4,7 +4,7 @@
 #include "Interactable.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
-#include "Kismet/GameplayStatics.h"
+#include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
 
 // Sets default values
 AInteractable::AInteractable()
@@ -39,7 +39,7 @@ void AInteractable::Tick(float DeltaTime)
 
 void AInteractable::OnSphereBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+	if (Cast<ATP_ThirdPersonCharacter>(OtherActor))
 		ShadeMesh->SetHiddenInGame(false);
 }
 

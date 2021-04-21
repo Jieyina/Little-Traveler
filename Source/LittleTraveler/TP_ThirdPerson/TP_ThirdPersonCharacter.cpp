@@ -26,11 +26,11 @@
 #include "../CPP_Climbable.h"
 #include "../Rock_Climbable.h"
 #include "../RockClimbTrigger_Start.h"
-#include "../GameSave.h"
+//#include "../GameSave.h"
 #include "../JumpableNode.h"
 #include "../Hook.h"
 #include "../Collectable.h"
-#include "../Faucet.h"
+//#include "../Faucet.h"
 #include "../LTGameInstance.h"
 #include "../Walnut.h"
 
@@ -423,10 +423,10 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 
 	euipItems.Add(EuipItem::FlourBomb);
 
-	ULTGameInstance* gameIns = Cast<ULTGameInstance>(GetGameInstance());
-	if (gameIns)
+	gameInstance = Cast<ULTGameInstance>(GetGameInstance());
+	if (gameInstance)
 	{
-		curLevel = gameIns->GetLevelId();
+		curLevel = gameInstance->GetLevelId();
 		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("curLevel %d"), curLevel));
 	}
 
@@ -721,14 +721,6 @@ void ATP_ThirdPersonCharacter::Interact()
 			UpdateFlourUI(true);
 		}
 	}
-	else if (hit.Actor->ActorHasTag("Walnut"))
-	{
-		AWalnut* walnut = Cast<AWalnut>(hit.Actor);
-		if (walnut) {
-			CollectAudio->Play();
-			walnut->Collect(this);
-		}
-	}
 	else if (hit.Actor->ActorHasTag("Talk"))
 	{
 		Talk(hit.GetActor());
@@ -739,16 +731,26 @@ void ATP_ThirdPersonCharacter::Interact()
 		if (collectItem)
 		{
 			CollectAudio->Play();
-			AddToInventory(collectItem->GetType(), collectItem->GetName());
+			collectItem->UpdateCollectUI();
+			if (gameInstance)
+				gameInstance->AddToInventory(collectItem->GetType(), collectItem->GetName());
+			if (collectItem->GetAchievementId() >= 0)
+				CheckAchievement(collectItem->GetAchievementId());
+			AWalnut* walnut = Cast<AWalnut>(collectItem);
+			if (walnut) 
+			{
+				walnut->CollectWalnut();
+				return;
+			}
 			collectItem->Destroy();
 		}
 	}
-	else if (hit.Actor->ActorHasTag("Faucet"))
-	{
-		AFaucet* faucet = Cast<AFaucet>(hit.Actor);
-		if (faucet)
-			faucet->Activate();
-	}
+	//else if (hit.Actor->ActorHasTag("Faucet"))
+	//{
+	//	AFaucet* faucet = Cast<AFaucet>(hit.Actor);
+	//	if (faucet)
+	//		faucet->Activate();
+	//}
 }
 
 void ATP_ThirdPersonCharacter::LerpToPush(float value)
@@ -1068,70 +1070,6 @@ void ATP_ThirdPersonCharacter::AdjustRope(float axisVal)
 	}
 }
 
-void ATP_ThirdPersonCharacter::AddToInventory(TEnumAsByte<ECollectableType> type, FString name)
-{
-	switch (type)
-	{
-	case ECollectableType::Collect_MainQuest:
-		if (questItems.Contains(name))
-			questItems[name] += 1;
-		else
-			questItems.Emplace(name, 1);
-		break;
-	case ECollectableType::Collect_Treasure:
-		if (treasures.Contains(name))
-			treasures[name] += 1;
-		else
-			treasures.Emplace(name, 1);
-		break;
-	//case ECollectableType::Collect_Resource:
-	//	if (resources.Contains(name))
-	//		resources[name] += 1;
-	//	else
-	//		resources.Emplace(name, 1);
-	//	break;
-	default:
-		return;
-	}
-}
-
-int ATP_ThirdPersonCharacter::GetItemNum(TEnumAsByte<ECollectableType> type, FString name)
-{
-	switch (type)
-	{
-	case ECollectableType::Collect_MainQuest:
-		return questItems.FindRef(name);
-	case ECollectableType::Collect_Treasure:
-		return treasures.FindRef(name);
-	//case ECollectableType::Collect_Resource:
-	// return resources.FindRef(name);
-	default:
-		return 0;
-	}
-}
-
-//void ATP_ThirdPersonCharacter::Craft(FString name)
-//{
-//	for (FCraftItem item : CraftItems)
-//	{
-//		if (item.name == name)
-//		{
-//			for (auto pair : item.materials)
-//			{
-//				if (resources.FindRef(pair.Key) < pair.Value)
-//					return;
-//			}
-//			for (auto pair : item.materials)
-//			{
-//				resources[pair.Key] -= pair.Value;
-//			}
-//			craftedTools.Emplace(name);
-//			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, FString::Printf(TEXT("craft %s"), *name));
-//		}
-//		return;
-//	}
-//}
-
 void ATP_ThirdPersonCharacter::ResetRockclimbing() {
 	canClimbRock = false;
 	canClimbJump = false;
@@ -1143,4 +1081,31 @@ void ATP_ThirdPersonCharacter::ResetRockclimbing() {
 	SetActorRotation(FQuat(FVector(0, 1, 0).Rotation()));
 	GetCameraBoom()->SetWorldRotation(FQuat(FVector(0, 1, 0).Rotation()));
 	GetCameraBoom()->bUsePawnControlRotation = true;
+}
+
+void ATP_ThirdPersonCharacter::CheckAchievement(int id)
+{
+	switch (id)
+	{
+	case 2:
+		if (gameInstance)
+		{
+			gameInstance->AddPantryItemNum();
+			if (gameInstance->GetPantryItemNum() == 4)
+				UnlockAchievement(FString("ACH_LEVEL_2.1"), 100.0f);
+		}
+		break;
+	case 6:
+		if (gameInstance)
+		{
+			gameInstance->AddWalnutNum();
+			if (gameInstance->GetWalnutNum() == 1)
+				UnlockAchievement(FString("ACH_ONE_WALNUT"), 100.0f);
+			else if (gameInstance->GetWalnutNum() == 6)
+				UnlockAchievement(FString("ACH_ALL_WALNUT"), 100.0f);
+		}
+		break;
+	default:
+		return;
+	}
 }
