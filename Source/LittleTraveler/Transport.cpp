@@ -97,3 +97,10 @@ void ATransport::LerpToMove(float value) {
 void ATransport::MoveFinish() {
 	isActive = false;
 }
+
+void ATransport::Reset() {
+	USplineComponent* Spline = TrackRef->Spline;
+	FVector pos = Spline->GetLocationAtDistanceAlongSpline(0, ESplineCoordinateSpace::Type::World);
+	SetActorLocation(pos);
+	isActive = false;
+}
