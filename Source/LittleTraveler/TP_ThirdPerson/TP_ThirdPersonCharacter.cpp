@@ -180,6 +180,7 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	//PlayerInputComponent->BindAction("UseEuip", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseEuip);
 	PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &ATP_ThirdPersonCharacter::UseFlourBomb);
 	PlayerInputComponent->BindAction("Hook", IE_Pressed, this, &ATP_ThirdPersonCharacter::Hook);
+	PlayerInputComponent->BindAction("AnyKey", IE_Released, this, &ATP_ThirdPersonCharacter::OnKeyInput);
 }
 
 
@@ -1106,6 +1107,75 @@ void ATP_ThirdPersonCharacter::CheckAchievement(int id)
 		}
 		break;
 	default:
+		return;
+	}
+}
+
+void ATP_ThirdPersonCharacter::OnKeyInput(FKey key)
+{
+	if (key == EKeys::Tilde)
+	{
+		checkCommand = true;
+		return;
+	}
+
+	if (checkCommand)
+	{
+		if (key == EKeys::Enter)
+		{
+			checkCommand = false;
+
+			if (command.Num() == 0)
+				return;
+			int id = -1;
+			for (int i = 0; i < cheats.Num(); i++)
+			{
+				if (cheats[i].command.Num() == command.Num())
+				{
+					bool pass = true;
+					for (int j = 0; j < command.Num(); j++)
+					{
+						if (cheats[i].command[j] != command[j])
+						{
+							pass = false;
+							break;
+						}
+					}
+					if (pass)
+					{
+						id = cheats[i].index;
+						break;
+					}
+				}
+			}
+
+			if (id >= 0)
+			{
+				switch (id)
+				{
+				case 0:
+					UnlockAchievement(FString("ACH_NEW_GAME"), 100.0f, true);
+					UnlockAchievement(FString("ACH_LEVEL_1"), 100.0f, false);
+					UnlockAchievement(FString("ACH_LEVEL_2.1"), 100.0f, false);
+					UnlockAchievement(FString("ACH_LEVEL_2.2"), 100.0f, false);
+					UnlockAchievement(FString("ACH_LEVEL_3"), 100.0f, false);
+					UnlockAchievement(FString("ACH_CAT"), 100.0f, false);
+					UnlockAchievement(FString("ACH_ONE_WALNUT"), 100.0f, false);
+					UnlockAchievement(FString("ACH_FISH"), 100.0f, false);
+					UnlockAchievement(FString("ACH_LAMP"), 100.0f, false);
+					UnlockAchievement(FString("ACH_STAMP"), 100.0f, false);
+					UnlockAchievement(FString("ACH_ALL_WALNUT"), 100.0f, false);
+					UnlockAchievement(FString("ACH_CREDIT"), 100.0f, false);
+					break;
+				default:
+					break;
+				}
+			}
+			command.Empty();
+			return;
+		}
+
+		command.Emplace(key);
 		return;
 	}
 }

@@ -17,6 +17,19 @@ enum EuipItem
 	Hook = 1
 };
 
+USTRUCT(BlueprintType)
+struct FCheat
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere)
+		int index;
+	UPROPERTY(EditAnywhere)
+		FString name;
+	UPROPERTY(EditAnywhere)
+		TArray<FKey> command;
+};
+
 UCLASS(config = Game)
 class ATP_ThirdPersonCharacter : public ACharacter
 {
@@ -191,6 +204,11 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		class UAudioComponent* CollectAudio;
 
+	//Cheat Command
+	UPROPERTY()
+		TArray<FKey> command;
+	bool checkCommand;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP Setting|Game")
 		int curLevel;
@@ -233,6 +251,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "BP Setting|Hook")
 		float launchZSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "BP Setting|Cheat")
+		TArray<FCheat> cheats;
 
 public:
 	ATP_ThirdPersonCharacter();
@@ -340,6 +361,8 @@ protected:
 	UFUNCTION()
 		void StopClimbingAudio();
 
+	void OnKeyInput(FKey key);
+
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
@@ -357,7 +380,7 @@ public:
 
 	void CheckAchievement(int id);
 	UFUNCTION(BlueprintImplementableEvent)
-		void UnlockAchievement(const FString& Id, float Percent);
+		void UnlockAchievement(const FString& Id, float Percent, bool cache = true);
 
 	void StartPush(float friction, FVector direction, USceneComponent* start);
 	void StopPush(bool changeCollision = true);
