@@ -321,6 +321,9 @@ protected:
 	void Hook();
 	void AdjustRope(float axisVal);
 
+	UFUNCTION(BlueprintCallable)
+		inline class ULTGameInstance* GetGameIns() { return gameInstance; }
+
 	UFUNCTION(BlueprintImplementableEvent)
 		void InitUI();
 	UFUNCTION(BlueprintImplementableEvent)
