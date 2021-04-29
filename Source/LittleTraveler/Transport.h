@@ -51,7 +51,11 @@ protected:
 	UFUNCTION()
 		void MoveFinish();
 
+
 public:	
+	UFUNCTION(BlueprintCallable)
+		void Reset();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 		float Duration = 1.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
