@@ -11,3 +11,9 @@ enum ECollectableType
 	Collect_MainQuest
 	//Collect_Resource
 };
+
+UENUM(BlueprintType)
+enum DialogueVer
+{
+	English, Chinese
+};

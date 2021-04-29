@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LittleTravelerTypes.h"
 #include "HintVFX.generated.h"
 
 UCLASS()
@@ -22,6 +23,9 @@ class LITTLETRAVELER_API AHintVFX : public AActor
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UTextRenderComponent* Text;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class UTextRenderComponent* TextCHS;
 
 public:	
 	// Sets default values for this actor's properties

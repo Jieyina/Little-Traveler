@@ -8,6 +8,7 @@
 #include "Components/TextRenderComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "TP_ThirdPerson/TP_ThirdPersonCharacter.h"
+#include "LTGameInstance.h"
 
 // Sets default values
 AHintVFX::AHintVFX()
@@ -27,6 +28,10 @@ AHintVFX::AHintVFX()
 	Text = CreateDefaultSubobject<UTextRenderComponent>("Text");
 	Text->SetupAttachment(RootComponent);
 	Text->SetHiddenInGame(true);
+
+	TextCHS = CreateDefaultSubobject<UTextRenderComponent>("TextCHS");
+	TextCHS->SetupAttachment(RootComponent);
+	TextCHS->SetHiddenInGame(true);
 
 	Particle = CreateDefaultSubobject<UParticleSystemComponent>("Particle");
 	Particle->SetupAttachment(Text);
@@ -51,14 +56,33 @@ void AHintVFX::OnBoxBeginOverlap(class UPrimitiveComponent* OverlappedComp, clas
 {
 	if (Cast<ATP_ThirdPersonCharacter>(OtherActor))
 	{
+		ULTGameInstance* gameIns = Cast<ULTGameInstance>(GetGameInstance());
+		if (gameIns)
+		{
+			TEnumAsByte<DialogueVer> language = gameIns->GetActiveLanguage();
+			 switch (language)
+			{
+			 case DialogueVer::English:
+				 Text->SetHiddenInGame(false);
+				 break;
+			 case DialogueVer::Chinese:
+				 TextCHS->SetHiddenInGame(false);
+				 break;
+			 default:
+				 break;
+			}
+		}
 		Particle->SetActive(true);
-		Text->SetHiddenInGame(false);
 	}
 }
 
 void AHintVFX::OnBoxEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	Particle->SetActive(false);
-	Text->SetHiddenInGame(true);
+	if (Cast<ATP_ThirdPersonCharacter>(OtherActor))
+	{
+		Particle->SetActive(false);
+		Text->SetHiddenInGame(true);
+		TextCHS->SetHiddenInGame(true);
+	}
 }
 

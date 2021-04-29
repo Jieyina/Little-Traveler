@@ -7,12 +7,6 @@
 #include "LittleTravelerTypes.h"
 #include "LTGameInstance.generated.h"
 
-UENUM(BlueprintType)
-enum DialogueVer
-{
-	English, Chinese
-};
-
 UCLASS()
 class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 {
@@ -80,4 +74,5 @@ public:
 	//inline void SetDialogue(class ULanguage* newLanguage) { dialogue = newLanguage; }
 	UFUNCTION(BlueprintCallable)
 		void SetActiveLanguage(int index);
+	inline TEnumAsByte<DialogueVer> GetActiveLanguage() { return activeVer; }
 };
