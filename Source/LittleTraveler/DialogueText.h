@@ -5,14 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Language.h"
+#include "LTGameInstance.h"
 #include "DialogueText.generated.h"
-
-UENUM()
-enum DialogueVer
-{
-	English, Chinese
-	
-};
 
 UCLASS()
 class LITTLETRAVELER_API ADialogueText : public AActor

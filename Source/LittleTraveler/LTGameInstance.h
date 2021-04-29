@@ -4,14 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "Language.h"
-#include "OnlineStats.h"
 #include "LittleTravelerTypes.h"
 #include "LTGameInstance.generated.h"
 
-/**
- * 
- */
+UENUM(BlueprintType)
+enum DialogueVer
+{
+	English, Chinese
+};
+
 UCLASS()
 class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 {
@@ -23,8 +24,8 @@ class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		int prevLevelId;
 
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		ULanguage* dialogue;
+	//UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	//	class ULanguage* dialogue;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		FVector spawnPos;
@@ -41,20 +42,19 @@ class LITTLETRAVELER_API ULTGameInstance : public UGameInstance
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		int catPushedTimes;
 
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TMap<FString, int32> questItems;
 	TMap<FString, int32> treasures;
 
-protected:
-	//void QueryAchievements();
-	//void OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
-	//void UpdateAchievementProgress(const FString& Id, float Percent);
-	//FOnlineAchievementsWritePtr AchievementsWriteObjectPtr;
-	//void OnWriteAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		TEnumAsByte<DialogueVer> activeVer;
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		TMap<TEnumAsByte<DialogueVer>, class ULanguage*> dialogueVers;
+
+private:
 	UFUNCTION(BlueprintCallable)
 		void SwitchLevel(int prevLevel, int newLevel);
-
 
 public:
 	ULTGameInstance();
@@ -76,7 +76,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		int GetItemNum(TEnumAsByte<ECollectableType> type, FString name);
 
-	inline ULanguage* GetDialogueAt() { return dialogue; }
-	inline void SetDialogue(ULanguage* newLanguage) { dialogue = newLanguage; }
-	//void CollectWalnut();
+	//inline ULanguage* GetDialogueAt() { return dialogue; }
+	//inline void SetDialogue(class ULanguage* newLanguage) { dialogue = newLanguage; }
+	UFUNCTION(BlueprintCallable)
+		void SetActiveLanguage(int index);
 };

@@ -4,7 +4,6 @@
 #include "DialogueText.h"
 #include "Misc/Paths.h"
 #include "Misc/FileHelper.h"
-#include "LTGameInstance.h"
 
 // Sets default values
 ADialogueText::ADialogueText()
@@ -23,9 +22,9 @@ void ADialogueText::BeginPlay()
 }
 
 void ADialogueText::LoadText() {
-	ULTGameInstance* gameIns = Cast<ULTGameInstance>(GetGameInstance());
-	if (gameIns)
-		gameIns->SetDialogue(mDialogueVers[mActiveVer]);
+	//ULTGameInstance* gameIns = Cast<ULTGameInstance>(GetGameInstance());
+	//if (gameIns)
+	//	gameIns->SetDialogue(mDialogueVers[mActiveVer]);
 }
 
 void ADialogueText::SetActiveLanguage(int index) {
